@@ -2,7 +2,15 @@
 title: "Marketing & Strategy"
 category: "Service"
 description: "Data-driven campaigns, content, and social media that grow your audience."
-offerings: []
+anchor: "marketing-strategy"
+offerings:
+  - Audience Targeting
+  - Campaign Management
+  - Copywriting
+  - Digital Marketing
+  - Social Campaigns & PPC
+  - Social Media Content
+  - Reporting
 ---
 
 # Marketing & Strategy

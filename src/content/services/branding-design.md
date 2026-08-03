@@ -2,7 +2,13 @@
 title: "Branding & Design"
 category: "Service"
 description: "Brand identity, print design, and digital design that tells your story."
-offerings: []
+anchor: "branding-design"
+offerings:
+  - Apparel Design
+  - Company Branding
+  - Digital Design
+  - Print Design
+  - Web Design
 ---
 
 # Branding & Design

@@ -2,39 +2,20 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Section from '../../components/Section.astro';
+import { getCollection } from 'astro:content';
 
-const categories = [
-  {
-    anchor: 'branding-design',
-    title: 'Branding & Design',
-    description: 'Brand identity, print design, and digital design that tells your story with clarity and craft.',
-    services: ['Apparel Design', 'Company Branding', 'Digital Design', 'Print Design', 'Web Design'],
-  },
-  {
-    anchor: 'websites',
-    title: 'Websites',
-    description: 'Web design, development, and ecommerce solutions that convert visitors into customers.',
-    services: ['App Development', 'Web Design', 'Web Development', 'Ecommerce'],
-  },
-  {
-    anchor: 'marketing-strategy',
-    title: 'Marketing & Strategy',
-    description: 'Data-driven campaigns, content, and social media that grow your audience and revenue.',
-    services: ['Audience Targeting', 'Campaign Management', 'Copywriting', 'Digital Marketing', 'Social Campaigns & PPC', 'Social Media Content', 'Reporting'],
-  },
-  {
-    anchor: 'media',
-    title: 'Media',
-    description: 'Motion graphics, photography, and videography that capture attention and tell stories.',
-    services: ['Motion Graphics', 'Photography', 'Videography'],
-  },
-  {
-    anchor: 'ongoing-support',
-    title: 'Ongoing Support',
-    description: 'Retainers, hosting, and maintenance that keep your site running smoothly after launch.',
-    services: ['Ongoing Retainers', 'Web Hosting', 'Web Support & Maintenance'],
-  },
+const desiredOrder = [
+  'branding-design',
+  'websites',
+  'marketing-strategy',
+  'media',
+  'ongoing-support',
 ];
+
+const services = await getCollection('services');
+const categories = desiredOrder
+  .map((slug) => services.find((s) => s.id === slug))
+  .filter((s) => s !== undefined);
 ---
 
 <BaseLayout
@@ -48,19 +29,19 @@ const categories = [
   />
 
   {categories.map((cat, i) => (
-    <Section bg={i % 2 === 0 ? 'paper' : 'mist'} padding="md" id={cat.anchor}>
+    <Section bg={i % 2 === 0 ? 'paper' : 'mist'} padding="md" id={cat!.data.anchor}>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
         <div class="md:col-span-1">
           <h2 class="font-[var(--font-poppins)] font-bold h3" style="font-size: 2.5rem; line-height: 1.1;">
-            {cat.title}
+            {cat!.data.title}
           </h2>
         </div>
         <div class="md:col-span-2">
           <p class="font-[var(--font-newsreader)] body-lg" style="line-height: 1.5;">
-            {cat.description}
+            {cat!.data.description}
           </p>
           <ul class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 list-none p-0">
-            {cat.services.map((service) => (
+            {cat!.data.offerings.map((service) => (
               <li class="font-[var(--font-poppins)] font-semibold text-ink" style="font-size: 1rem; padding: 12px 0; border-bottom: 1px solid rgba(13, 23, 38, 0.1);">
                 {service}
               </li>

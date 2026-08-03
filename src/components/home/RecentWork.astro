@@ -1,44 +1,11 @@
 ---
 import Section from '../Section.astro';
+import { getCollection } from 'astro:content';
 
-const caseStudies = [
-  {
-    slug: 'spring-water-spirits',
-    title: 'Spring Water Spirits',
-    description: 'A brand rooted in clarity and craft.',
-    category: 'Branding & Web Design',
-  },
-  {
-    slug: 'deals-in-dirt',
-    title: 'Deals In Dirt',
-    description: 'Earthy branding for a soil and mulch supplier.',
-    category: 'Branding & Print Design',
-  },
-  {
-    slug: 'harts-meat-market',
-    title: "Hart's Meat Market",
-    description: 'Butcher shop branding with old-world charm.',
-    category: 'Branding & Signage',
-  },
-  {
-    slug: 'elev8-fun',
-    title: 'Elev8 Fun',
-    description: 'Family entertainment center website and marketing.',
-    category: 'Web Design & Marketing',
-  },
-  {
-    slug: 'mountaineer-coffee',
-    title: 'Mountaineer Coffee',
-    description: 'Specialty coffee roaster e-commerce and branding.',
-    category: 'Ecommerce & Branding',
-  },
-  {
-    slug: 'unprofitable',
-    title: 'Unprofitable',
-    description: 'A satirical card game brand and online store.',
-    category: 'Product & Branding',
-  },
-];
+// Single source of truth: src/content/case-studies/*.md
+const caseStudies = (await getCollection('caseStudies')).sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
+);
 ---
 
 <Section bg="ink" padding="xl">
@@ -52,27 +19,32 @@ const caseStudies = [
     </a>
   </div>
 
-  <div class="carousel-wrapper relative overflow-hidden" data-reveal>
+  <div class="carousel-wrapper relative overflow-hidden" data-reveal role="region" aria-label="Recent work carousel" tabindex="0">
     <div class="carousel-track" data-carousel-track>
-      {caseStudies.map((cs) => (
-        <article class="carousel-slide">
+      {caseStudies.map((cs, i) => (
+        <article
+          class="carousel-slide"
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`Slide ${i + 1} of ${caseStudies.length}: ${cs.data.title}`}
+        >
           <div class="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p class="font-[var(--font-poppins)] font-semibold text-kelp uppercase tracking-wider" style="font-size: 0.875rem; letter-spacing: 0.1em;">
-                {cs.category}
+                {cs.data.category}
               </p>
               <h3 class="font-[var(--font-poppins)] font-semibold text-paper mt-4 h3-card" style="font-size: 1.4rem;">
-                {cs.title}
+                {cs.data.title}
               </h3>
               <p class="font-[var(--font-newsreader)] text-paper mt-4" style="font-size: 1.125rem; line-height: 1.8; opacity: 0.85;">
-                {cs.description}
+                {cs.data.description}
               </p>
               <a
-                href={`/work/${cs.slug}/`}
+                href={`/work/${cs.id}/`}
                 class="inline-flex items-center gap-2 mt-6 font-[var(--font-newsreader)] text-paper no-underline hover:text-kelp transition-colors"
                 style="font-size: 1.125rem; border-bottom: 2px solid var(--color-kelp); padding-bottom: 4px;"
               >
-                Read More About {cs.title}
+                Read More About {cs.data.title}
                 <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
@@ -125,10 +97,17 @@ const caseStudies = [
       this.prevBtn?.addEventListener('click', () => this.go(-1));
       this.nextBtn?.addEventListener('click', () => this.go(1));
 
-      // Keyboard support
+      // Keyboard support — root is focusable (tabindex="0") so arrow keys
+      // work when the carousel region has focus, not just when a button does.
       root.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') this.go(-1);
-        if (e.key === 'ArrowRight') this.go(1);
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          this.go(-1);
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          this.go(1);
+        }
       });
     }
 

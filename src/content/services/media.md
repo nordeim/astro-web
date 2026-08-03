@@ -2,7 +2,11 @@
 title: "Media"
 category: "Service"
 description: "Motion graphics, photography, and videography that capture attention."
-offerings: []
+anchor: "media"
+offerings:
+  - Motion Graphics
+  - Photography
+  - Videography
 ---
 
 # Media

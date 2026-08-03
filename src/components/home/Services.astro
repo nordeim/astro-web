@@ -1,33 +1,22 @@
 ---
 import Section from '../Section.astro';
+import { getCollection } from 'astro:content';
 
-const serviceCategories = [
-  {
-    title: 'Branding & Design',
-    anchor: 'branding-design',
-    services: ['Apparel Design', 'Company Branding', 'Digital Design', 'Print Design', 'Web Design'],
-  },
-  {
-    title: 'Websites',
-    anchor: 'websites',
-    services: ['App Development', 'Web Design', 'Web Development', 'Ecommerce'],
-  },
-  {
-    title: 'Marketing & Strategy',
-    anchor: 'marketing-strategy',
-    services: ['Audience Targeting', 'Campaign Management', 'Copywriting', 'Digital Marketing', 'Social Campaigns & PPC', 'Social Media Content', 'Reporting'],
-  },
-  {
-    title: 'Media',
-    anchor: 'media',
-    services: ['Motion Graphics', 'Photography', 'Videography'],
-  },
-  {
-    title: 'Ongoing Support',
-    anchor: 'ongoing-support',
-    services: ['Ongoing Retainers', 'Web Hosting', 'Web Support & Maintenance'],
-  },
+// Single source of truth: src/content/services/*.md
+// Stable display order is defined here (NOT in the markdown) so that
+// reordering on the homepage does not require renaming content files.
+const desiredOrder = [
+  'branding-design',
+  'websites',
+  'marketing-strategy',
+  'media',
+  'ongoing-support',
 ];
+
+const services = await getCollection('services');
+const serviceCategories = desiredOrder
+  .map((slug) => services.find((s) => s.id === slug))
+  .filter((s) => s !== undefined);
 ---
 
 <Section bg="paper" padding="md">
@@ -39,13 +28,13 @@ const serviceCategories = [
     {serviceCategories.map((cat) => (
       <div>
         <h3 class="font-[var(--font-poppins)] font-bold h3" style="font-size: 1.75rem; line-height: 1.2;">
-          {cat.title}
+          {cat!.data.title}
         </h3>
         <ul class="mt-6 space-y-3 list-none p-0">
-          {cat.services.map((service) => (
+          {cat!.data.offerings.map((service) => (
             <li>
               <a
-                href={`/services/#${cat.anchor}`}
+                href={`/services/#${cat!.data.anchor}`}
                 class="font-[var(--font-poppins)] font-semibold text-ink no-underline hover:text-kelp transition-colors inline-block"
                 style="font-size: 0.9375rem;"
               >

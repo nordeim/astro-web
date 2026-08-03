@@ -21,6 +21,7 @@ const services = defineCollection({
     title: z.string(),
     category: z.string(),
     description: z.string(),
+    anchor: z.string(),
     offerings: z.array(z.string()).default([]),
   }),
 });

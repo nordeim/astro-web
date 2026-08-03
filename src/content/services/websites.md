@@ -2,7 +2,12 @@
 title: "Websites"
 category: "Service"
 description: "Web design, development, and ecommerce solutions that convert visitors into customers."
-offerings: []
+anchor: "websites"
+offerings:
+  - App Development
+  - Web Design
+  - Web Development
+  - Ecommerce
 ---
 
 # Websites

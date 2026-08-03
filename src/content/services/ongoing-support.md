@@ -2,7 +2,11 @@
 title: "Ongoing Support"
 category: "Service"
 description: "Retainers, hosting, and maintenance that keep your site running smoothly."
-offerings: []
+anchor: "ongoing-support"
+offerings:
+  - Ongoing Retainers
+  - Web Hosting
+  - Web Support & Maintenance
 ---
 
 # Ongoing Support
