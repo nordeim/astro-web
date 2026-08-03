@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+---
+
+<BaseLayout title="404 — Page Not Found | Kelp Creative Agency" description="The page you're looking for doesn't exist.">
+  <Section bg="ink" padding="xl">
+    <div class="text-center max-w-2xl mx-auto">
+      <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.875rem; letter-spacing: 0.15em;">
+        404
+      </p>
+      <h1 class="font-[var(--font-poppins)] font-bold text-paper mt-4 h1 text-balance">
+        This page drifted out to sea.
+      </h1>
+      <p class="font-[var(--font-newsreader)] text-paper mt-8 body-lead" style="opacity: 0.9;">
+        The page you're looking for doesn't exist — or it never did. Let's get you back to shore.
+      </p>
+      <div class="mt-12 flex flex-wrap items-center justify-center gap-4">
+        <a href="/" class="btn btn--on-dark">
+          Back to Home
+        </a>
+        <a href="/contact/" class="font-[var(--font-newsreader)] text-paper no-underline hover:text-kelp inline-flex items-center gap-2" style="font-size: 1.125rem; border-bottom: 2px solid var(--color-kelp); padding-bottom: 4px;">
+          Contact Us <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

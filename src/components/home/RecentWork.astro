@@ -1,0 +1,157 @@
+---
+import Section from '../Section.astro';
+
+const caseStudies = [
+  {
+    slug: 'spring-water-spirits',
+    title: 'Spring Water Spirits',
+    description: 'A brand rooted in clarity and craft.',
+    category: 'Branding & Web Design',
+  },
+  {
+    slug: 'deals-in-dirt',
+    title: 'Deals In Dirt',
+    description: 'Earthy branding for a soil and mulch supplier.',
+    category: 'Branding & Print Design',
+  },
+  {
+    slug: 'harts-meat-market',
+    title: "Hart's Meat Market",
+    description: 'Butcher shop branding with old-world charm.',
+    category: 'Branding & Signage',
+  },
+  {
+    slug: 'elev8-fun',
+    title: 'Elev8 Fun',
+    description: 'Family entertainment center website and marketing.',
+    category: 'Web Design & Marketing',
+  },
+  {
+    slug: 'mountaineer-coffee',
+    title: 'Mountaineer Coffee',
+    description: 'Specialty coffee roaster e-commerce and branding.',
+    category: 'Ecommerce & Branding',
+  },
+  {
+    slug: 'unprofitable',
+    title: 'Unprofitable',
+    description: 'A satirical card game brand and online store.',
+    category: 'Product & Branding',
+  },
+];
+---
+
+<Section bg="ink" padding="xl">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
+    <h2 class="font-[var(--font-poppins)] font-bold h2 text-paper text-balance" data-reveal>
+      Our Work In the real-world
+    </h2>
+    <a href="/work/" class="font-[var(--font-newsreader)] text-paper no-underline hover:text-kelp transition-colors inline-flex items-center gap-2" style="font-size: 1.125rem;">
+      View all case studies
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+
+  <div class="carousel-wrapper relative overflow-hidden" data-reveal>
+    <div class="carousel-track" data-carousel-track>
+      {caseStudies.map((cs) => (
+        <article class="carousel-slide">
+          <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p class="font-[var(--font-poppins)] font-semibold text-kelp uppercase tracking-wider" style="font-size: 0.875rem; letter-spacing: 0.1em;">
+                {cs.category}
+              </p>
+              <h3 class="font-[var(--font-poppins)] font-semibold text-paper mt-4 h3-card" style="font-size: 1.4rem;">
+                {cs.title}
+              </h3>
+              <p class="font-[var(--font-newsreader)] text-paper mt-4" style="font-size: 1.125rem; line-height: 1.8; opacity: 0.85;">
+                {cs.description}
+              </p>
+              <a
+                href={`/work/${cs.slug}/`}
+                class="inline-flex items-center gap-2 mt-6 font-[var(--font-newsreader)] text-paper no-underline hover:text-kelp transition-colors"
+                style="font-size: 1.125rem; border-bottom: 2px solid var(--color-kelp); padding-bottom: 4px;"
+              >
+                Read More About {cs.title}
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+            <div class="aspect-[4/3] bg-mist" style="background: linear-gradient(135deg, var(--color-teal), var(--color-seafoam));"></div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="flex items-center gap-2 mt-8">
+      <button
+        type="button"
+        class="btn btn--on-dark"
+        data-carousel-prev
+        aria-label="Previous case study"
+      >
+        &larr; Prev
+      </button>
+      <button
+        type="button"
+        class="btn btn--on-dark"
+        data-carousel-next
+        aria-label="Next case study"
+      >
+        Next &rarr;
+      </button>
+      <span class="ml-4 font-[var(--font-newsreader)] text-paper" style="font-size: 0.9rem; opacity: 0.7;" data-carousel-counter>
+        1 / {caseStudies.length}
+      </span>
+    </div>
+  </div>
+</Section>
+
+<script>
+  class KelpCarousel {
+    private track: HTMLElement;
+    private slides: NodeListOf<HTMLElement>;
+    private prevBtn: HTMLElement | null;
+    private nextBtn: HTMLElement | null;
+    private counter: HTMLElement | null;
+    private current = 0;
+
+    constructor(root: HTMLElement) {
+      this.track = root.querySelector('[data-carousel-track]') as HTMLElement;
+      this.slides = root.querySelectorAll('.carousel-slide');
+      this.prevBtn = root.querySelector('[data-carousel-prev]');
+      this.nextBtn = root.querySelector('[data-carousel-next]');
+      this.counter = root.querySelector('[data-carousel-counter]');
+
+      this.prevBtn?.addEventListener('click', () => this.go(-1));
+      this.nextBtn?.addEventListener('click', () => this.go(1));
+
+      // Keyboard support
+      root.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') this.go(-1);
+        if (e.key === 'ArrowRight') this.go(1);
+      });
+    }
+
+    private go(delta: number) {
+      const total = this.slides.length;
+      this.current = (this.current + delta + total) % total;
+      this.track.style.transform = `translateX(-${this.current * 100}%)`;
+      if (this.counter) {
+        this.counter.textContent = `${this.current + 1} / ${total}`;
+      }
+    }
+  }
+
+  const initCarousels = () => {
+    document.querySelectorAll('.carousel-wrapper').forEach((el) => {
+      const root = el as HTMLElement;
+      if (!root.dataset.carouselInit) {
+        root.dataset.carouselInit = 'true';
+        new KelpCarousel(root);
+      }
+    });
+  };
+
+  initCarousels();
+  document.addEventListener('astro:after-swap', initCarousels);
+</script>

@@ -1,0 +1,60 @@
+---
+import Section from '../Section.astro';
+
+const serviceCategories = [
+  {
+    title: 'Branding & Design',
+    anchor: 'branding-design',
+    services: ['Apparel Design', 'Company Branding', 'Digital Design', 'Print Design', 'Web Design'],
+  },
+  {
+    title: 'Websites',
+    anchor: 'websites',
+    services: ['App Development', 'Web Design', 'Web Development', 'Ecommerce'],
+  },
+  {
+    title: 'Marketing & Strategy',
+    anchor: 'marketing-strategy',
+    services: ['Audience Targeting', 'Campaign Management', 'Copywriting', 'Digital Marketing', 'Social Campaigns & PPC', 'Social Media Content', 'Reporting'],
+  },
+  {
+    title: 'Media',
+    anchor: 'media',
+    services: ['Motion Graphics', 'Photography', 'Videography'],
+  },
+  {
+    title: 'Ongoing Support',
+    anchor: 'ongoing-support',
+    services: ['Ongoing Retainers', 'Web Hosting', 'Web Support & Maintenance'],
+  },
+];
+---
+
+<Section bg="paper" padding="md">
+  <h2 class="font-[var(--font-poppins)] font-bold h2 mb-16 text-balance" data-reveal>
+    Our Services
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8" data-reveal>
+    {serviceCategories.map((cat) => (
+      <div>
+        <h3 class="font-[var(--font-poppins)] font-bold h3" style="font-size: 1.75rem; line-height: 1.2;">
+          {cat.title}
+        </h3>
+        <ul class="mt-6 space-y-3 list-none p-0">
+          {cat.services.map((service) => (
+            <li>
+              <a
+                href={`/services/#${cat.anchor}`}
+                class="font-[var(--font-poppins)] font-semibold text-ink no-underline hover:text-kelp transition-colors inline-block"
+                style="font-size: 0.9375rem;"
+              >
+                {service}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</Section>

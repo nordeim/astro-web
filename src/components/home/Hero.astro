@@ -1,0 +1,31 @@
+---
+const clients = [
+  { name: 'Elev8 Fun', href: '/work/elev8-fun/' },
+  { name: 'Marker 48', href: '/work/marker-48/' },
+  { name: 'Beverlin Hills', href: '/work/beverlin-hills/' },
+];
+---
+
+<section class="hero" style="min-height: 720px; padding: 32px 0 0;">
+  <div class="container">
+    <h1 class="font-[var(--font-poppins)] font-bold h1 text-balance" style="max-width: 14ch;">
+      Central Florida's Award Winning Creative Agency.
+    </h1>
+
+    <p class="font-[var(--font-newsreader)] mt-8 body-base max-w-2xl" style="line-height: 1.8;">
+      We're a team of designers, developers, and marketers who love to take great ideas and bring them to life. <em>From branding to websites to ongoing campaigns</em>, we help Central Florida businesses grow with craft and care.
+    </p>
+
+    <div class="mt-12 flex flex-wrap items-center gap-x-10 gap-y-4">
+      {clients.map((client) => (
+        <a
+          href={client.href}
+          class="font-[var(--font-poppins)] font-semibold text-ink no-underline hover:text-kelp transition-colors"
+          style="font-size: 1.125rem; letter-spacing: 0.02em;"
+        >
+          {client.name}
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

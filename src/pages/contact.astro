@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+---
+
+<BaseLayout
+  title="Contact — Kelp Creative Agency"
+  description="Schedule a meeting or send us a message. We respond within one business day."
+>
+  <PageHeader
+    eyebrow="Contact"
+    title="Let's make something together."
+    description="Tell us about your project. We'll respond within one business day with next steps."
+  />
+
+  <Section bg="paper" padding="md">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+      <div class="lg:col-span-1">
+        <h2 class="font-[var(--font-poppins)] font-bold h3 mb-6">Get in touch</h2>
+        <dl class="space-y-6">
+          <div>
+            <dt class="font-[var(--font-poppins)] font-semibold text-slate uppercase tracking-wider" style="font-size: 0.75rem; letter-spacing: 0.1em;">Email</dt>
+            <dd class="mt-1">
+              <a href="mailto:hello@kelp.agency" class="font-[var(--font-newsreader)] text-ink no-underline hover:text-kelp" style="font-size: 1.125rem;">hello@kelp.agency</a>
+            </dd>
+          </div>
+          <div>
+            <dt class="font-[var(--font-poppins)] font-semibold text-slate uppercase tracking-wider" style="font-size: 0.75rem; letter-spacing: 0.1em;">Phone</dt>
+            <dd class="mt-1">
+              <a href="tel:+14075551234" class="font-[var(--font-newsreader)] text-ink no-underline hover:text-kelp" style="font-size: 1.125rem;">(407) 555-1234</a>
+            </dd>
+          </div>
+          <div>
+            <dt class="font-[var(--font-poppins)] font-semibold text-slate uppercase tracking-wider" style="font-size: 0.75rem; letter-spacing: 0.1em;">Studio</dt>
+            <dd class="mt-1 font-[var(--font-newsreader)] text-ink" style="font-size: 1.125rem; line-height: 1.7;">
+              123 Winter Park Ave<br />
+              Suite 200<br />
+              Winter Park, FL 32789
+            </dd>
+          </div>
+          <div>
+            <dt class="font-[var(--font-poppins)] font-semibold text-slate uppercase tracking-wider" style="font-size: 0.75rem; letter-spacing: 0.1em;">Hours</dt>
+            <dd class="mt-1 font-[var(--font-newsreader)] text-ink" style="font-size: 1.125rem;">
+              Monday–Friday, 9am–5pm ET
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h2 class="font-[var(--font-poppins)] font-bold h3 mb-6">Project brief</h2>
+        <form method="POST" action="/contact/" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label for="name" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
+                Name <span class="text-coral">*</span>
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="w-full px-4 py-3 bg-paper text-ink border-2 border-ink focus:outline-none focus:border-kelp"
+                style="border-radius: 0; font-family: var(--font-newsreader); font-size: 1.0625rem;"
+              />
+            </div>
+            <div>
+              <label for="email" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
+                Email <span class="text-coral">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-3 bg-paper text-ink border-2 border-ink focus:outline-none focus:border-kelp"
+                style="border-radius: 0; font-family: var(--font-newsreader); font-size: 1.0625rem;"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="company" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
+              Company
+            </label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              class="w-full px-4 py-3 bg-paper text-ink border-2 border-ink focus:outline-none focus:border-kelp"
+              style="border-radius: 0; font-family: var(--font-newsreader); font-size: 1.0625rem;"
+            />
+          </div>
+
+          <div>
+            <label for="budget" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
+              Budget range
+            </label>
+            <select
+              id="budget"
+              name="budget"
+              class="w-full px-4 py-3 bg-paper text-ink border-2 border-ink focus:outline-none focus:border-kelp"
+              style="border-radius: 0; font-family: var(--font-newsreader); font-size: 1.0625rem;"
+            >
+              <option value="">Select a range</option>
+              <option value="under-5k">Under $5,000</option>
+              <option value="5k-15k">$5,000 – $15,000</option>
+              <option value="15k-50k">$15,000 – $50,000</option>
+              <option value="50k-plus">$50,000+</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="services" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
+              What do you need?
+            </label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+              {['Branding', 'Website', 'Marketing', 'Media', 'Ecommerce', 'Ongoing Support'].map((service) => (
+                <label class="flex items-center gap-2 font-[var(--font-poppins)] text-ink cursor-pointer" style="font-size: 0.9375rem;">
+                  <input
+                    type="checkbox"
+                    name="services"
+                    value={service}
+                    class="w-4 h-4"
+                    style="accent-color: var(--color-kelp);"
+                  />
+                  {service}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label for="message" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
+              Project details <span class="text-coral">*</span>
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows="6"
+              required
+              class="w-full px-4 py-3 bg-paper text-ink border-2 border-ink focus:outline-none focus:border-kelp"
+              style="border-radius: 0; font-family: var(--font-newsreader); font-size: 1.0625rem; line-height: 1.6;"
+            ></textarea>
+          </div>
+
+          <div>
+            <button type="submit" class="btn">
+              Send Project Brief &rarr;
+            </button>
+          </div>
+
+          <p class="font-[var(--font-newsreader)] text-slate" style="font-size: 0.9rem; line-height: 1.7;">
+            Prefer to talk? <a href="#" class="text-ink underline hover:text-kelp">Schedule a 30-minute discovery call</a> instead.
+          </p>
+        </form>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

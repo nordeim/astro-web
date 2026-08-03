@@ -1,0 +1,92 @@
+---
+const year = new Date().getFullYear();
+
+const footerColumns = [
+  {
+    title: 'Services',
+    links: [
+      { label: 'Apparel Design', href: '/services/#branding-design' },
+      { label: 'App Development', href: '/services/#websites' },
+      { label: 'Audience Targeting', href: '/services/#marketing-strategy' },
+      { label: 'Branding', href: '/services/#branding-design' },
+      { label: 'Campaign Management', href: '/services/#marketing-strategy' },
+      { label: 'Copywriting', href: '/services/#marketing-strategy' },
+      { label: 'Digital Design', href: '/services/#branding-design' },
+      { label: 'Marketing', href: '/services/#marketing-strategy' },
+      { label: 'Ecommerce', href: '/services/#websites' },
+      { label: 'Infographics', href: '/services/#branding-design' },
+      { label: 'Motion Graphics', href: '/services/#media' },
+      { label: 'Photography', href: '/services/#media' },
+      { label: 'PPC & Social Campaigns', href: '/services/#marketing-strategy' },
+      { label: 'Print Design', href: '/services/#branding-design' },
+      { label: 'Reporting', href: '/services/#marketing-strategy' },
+      { label: 'Social Media Content', href: '/services/#marketing-strategy' },
+    ],
+  },
+  {
+    title: 'Contact',
+    links: [
+      { label: 'Schedule a Meeting', href: '/contact/' },
+      { label: 'Hire Us', href: '/contact/' },
+      { label: 'Get a Quote', href: '/contact/' },
+    ],
+  },
+  {
+    title: 'Work',
+    links: [
+      { label: 'Case Studies', href: '/work/' },
+      { label: 'Clients', href: '/work/clients/' },
+    ],
+  },
+  {
+    title: 'Platforms',
+    links: [
+      { label: 'HubSpot', href: '/platforms/#hubspot' },
+      { label: 'Shopify', href: '/platforms/#shopify' },
+      { label: 'WordPress', href: '/platforms/#wordpress' },
+    ],
+  },
+  {
+    title: 'Follow us on social',
+    links: [
+      { label: 'Instagram', href: '#' },
+      { label: 'LinkedIn', href: '#' },
+      { label: 'Facebook', href: '#' },
+      { label: 'YouTube', href: '#' },
+    ],
+  },
+];
+---
+
+<footer class="bg-ink text-paper" style="padding: 0 0 64px;">
+  <div class="container" style="padding-top: 96px;">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+      {footerColumns.map((col) => (
+        <div>
+          <h3 class="font-[var(--font-poppins)] font-semibold text-paper" style="font-size: 1.75rem; line-height: 1.3;">
+            {col.title}
+          </h3>
+          <ul class="mt-6 space-y-3 list-none p-0">
+            {col.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="font-[var(--font-newsreader)] text-paper no-underline hover:text-kelp transition-colors"
+                  style="font-size: 1.125rem; line-height: 1.8;"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-16 pt-8" style="border-top: 1px solid rgba(255, 255, 255, 0.15);">
+      <p class="font-[var(--font-newsreader)] text-paper" style="font-size: 0.9rem; line-height: 1.8;">
+        &copy; {year} Kelp Agency. All rights reserved. Designed by humans and coded with <span class="text-coral">&hearts;</span> in Central Florida.
+      </p>
+    </div>
+  </div>
+</footer>

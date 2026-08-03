@@ -1,0 +1,29 @@
+---
+interface Props {
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  bg?: 'paper' | 'ink' | 'mist';
+}
+
+const { title, eyebrow, description, bg = 'paper' } = Astro.props;
+const bgClass = bg === 'ink' ? 'bg-ink text-paper' : bg === 'mist' ? 'bg-mist' : 'bg-paper';
+---
+
+<section class={`${bgClass}`} style="padding-top: 112px;">
+  <div class="container" style="padding-bottom: 64px;">
+    {eyebrow && (
+      <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.875rem; letter-spacing: 0.1em;">
+        {eyebrow}
+      </p>
+    )}
+    <h1 class="font-[var(--font-poppins)] font-bold mt-4 h1 text-balance" style={bg === 'ink' ? 'color: var(--color-paper);' : ''}>
+      {title}
+    </h1>
+    {description && (
+      <p class="font-[var(--font-newsreader)] mt-6 body-lg max-w-2xl" style={`line-height: 1.5; ${bg === 'ink' ? 'color: var(--color-paper);' : ''}`}>
+        {description}
+      </p>
+    )}
+  </div>
+</section>

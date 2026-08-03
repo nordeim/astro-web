@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+
+const values = [
+  {
+    title: 'Craft over speed',
+    description: 'We sweat the details that other agencies skip. Every pixel, every line of copy, every interaction. It matters.',
+  },
+  {
+    title: 'Partners over pirates',
+    description: 'We invest in long-term partnerships, not one-off projects. Your success is our success — no surprises on the invoice.',
+  },
+  {
+    title: 'Humans over hype',
+    description: 'No buzzwords. No vanity metrics. Just honest work for real people running real businesses in Central Florida.',
+  },
+  {
+    title: 'Editorial over algorithmic',
+    description: 'We write and design like editors, not marketers. If it would not pass an editor, it does not ship.',
+  },
+];
+
+const team = [
+  { name: 'Alex Kelp', role: 'Founder & Creative Director' },
+  { name: 'Maria Santos', role: 'Design Lead' },
+  { name: 'James O\'Brien', role: 'Development Lead' },
+  { name: 'Priya Patel', role: 'Marketing Strategist' },
+];
+---
+
+<BaseLayout
+  title="About — Kelp Creative Agency"
+  description="We're a team of designers, developers, and marketers who love to take great ideas and bring them to life. Based in Central Florida."
+>
+  <PageHeader
+    eyebrow="About Us"
+    title="Designed by humans. Coded with care."
+    description="Kelp is a small, senior team based in Central Florida. No account managers, no handoffs — you work directly with the people doing the work."
+  />
+
+  <Section bg="paper" padding="md">
+    <div class="max-w-3xl">
+      <h2 class="font-[var(--font-poppins)] font-bold h2 mb-8">Our story</h2>
+      <p class="font-[var(--font-newsreader)] body-lg" style="line-height: 1.7;">
+        Kelp started in 2018 with a simple idea: most agencies optimize for their own throughput, not for the client's outcome. We wanted to build something different — a small team of senior practitioners who treat every project as a craft, not a ticket.
+      </p>
+      <p class="font-[var(--font-newsreader)] mt-6" style="font-size: 1.125rem; line-height: 1.8;">
+        Eight years later, we're still small by choice. We turn down work that doesn't fit, and we keep our client roster lean so every project gets the attention it deserves. We've shipped branding, websites, and campaigns for breweries, coffee roasters, meat markets, family entertainment centers, and software companies across Central Florida.
+      </p>
+      <p class="font-[var(--font-newsreader)] mt-6" style="font-size: 1.125rem; line-height: 1.8;">
+        We named ourselves <em>Kelp</em> because kelp forests are foundational — they shelter, feed, and anchor entire ecosystems. That's what we aim to be for our clients: not a vendor, but a foundation they can grow on.
+      </p>
+    </div>
+  </Section>
+
+  <Section bg="ink" padding="md">
+    <h2 class="font-[var(--font-poppins)] font-bold text-paper h2 mb-16">What we believe</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      {values.map((v) => (
+        <div data-reveal>
+          <h3 class="font-[var(--font-poppins)] font-semibold text-paper" style="font-size: 1.75rem; line-height: 1.2;">
+            {v.title}
+          </h3>
+          <p class="font-[var(--font-newsreader)] text-paper mt-4" style="font-size: 1.125rem; line-height: 1.7; opacity: 0.85;">
+            {v.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  </Section>
+
+  <Section bg="paper" padding="md">
+    <h2 class="font-[var(--font-poppins)] font-bold h2 mb-16">The team</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {team.map((member) => (
+        <div data-reveal>
+          <div class="aspect-square w-full mb-4" style="background: linear-gradient(135deg, var(--color-teal), var(--color-coral));"></div>
+          <h3 class="font-[var(--font-poppins)] font-semibold text-ink" style="font-size: 1.25rem;">
+            {member.name}
+          </h3>
+          <p class="font-[var(--font-newsreader)] text-slate mt-1" style="font-size: 0.95rem;">
+            {member.role}
+          </p>
+        </div>
+      ))}
+    </div>
+  </Section>
+</BaseLayout>

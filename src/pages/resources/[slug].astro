@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map((article) => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+---
+
+<BaseLayout
+  title={`${article.data.title} — Kelp Creative Agency`}
+  description={article.data.excerpt}
+>
+  <Section bg="ink" padding="md">
+    <a href="/resources/" class="font-[var(--font-newsreader)] text-paper no-underline hover:text-kelp inline-flex items-center gap-2 mb-12" style="font-size: 1rem;">
+      <span aria-hidden="true">&larr;</span> All Articles
+    </a>
+    <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.875rem; letter-spacing: 0.1em;">
+      {article.data.category}
+    </p>
+    <h1 class="font-[var(--font-poppins)] font-bold text-paper mt-4 h2 text-balance" style="font-size: clamp(2rem, 4vw, 3rem);">
+      {article.data.title}
+    </h1>
+    <p class="font-[var(--font-newsreader)] text-paper mt-6" style="font-size: 1rem; opacity: 0.7;">
+      By {article.data.author} · {new Date(article.data.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+    </p>
+  </Section>
+
+  <Section bg="paper" padding="md">
+    <div class="max-w-3xl">
+      <div class="prose prose-lg max-w-none font-[var(--font-newsreader)]" style="font-size: 1.125rem; line-height: 1.8;">
+        <Content />
+      </div>
+    </div>
+  </Section>
+</BaseLayout>

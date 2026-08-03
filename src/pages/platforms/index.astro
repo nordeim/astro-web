@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Section from '../../components/Section.astro';
+
+const platforms = [
+  {
+    anchor: 'hubspot',
+    name: 'HubSpot',
+    description: 'Certified HubSpot partner. We build custom templates, develop HubDB-powered content, integrate forms, and tune your portal for marketing automation.',
+    services: ['HubSpot CMS Development', 'HubDB Custom Modules', 'Form Customization', 'Marketing Automation', 'CMS Onboarding'],
+  },
+  {
+    anchor: 'shopify',
+    name: 'Shopify',
+    description: 'Shopify Plus partners. Custom theme development, app integration, and conversion optimization for direct-to-consumer brands.',
+    services: ['Shopify Plus Development', 'Custom Theme Design', 'App Integration', 'Checkout Optimization', 'Headless Shopify'],
+  },
+  {
+    anchor: 'wordpress',
+    name: 'WordPress',
+    description: 'Custom WordPress theme and plugin development. We build performant, maintainable WordPress sites that editors actually enjoy using.',
+    services: ['Custom Theme Development', 'Plugin Development', 'Gutenberg Blocks', 'WooCommerce', 'Performance Optimization'],
+  },
+];
+---
+
+<BaseLayout
+  title="Platforms — Kelp Creative Agency"
+  description="We work with HubSpot, Shopify, and WordPress. Certified partners with deep platform expertise."
+>
+  <PageHeader
+    eyebrow="Platforms"
+    title="Platform expertise that runs deep."
+    description="We're certified partners on the platforms Central Florida businesses rely on. From HubSpot CMS to Shopify Plus to custom WordPress, we build it right."
+  />
+
+  {platforms.map((p, i) => (
+    <Section bg={i % 2 === 0 ? 'paper' : 'mist'} padding="md" id={p.anchor}>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div>
+          <h2 class="font-[var(--font-poppins)] font-bold h2" style="font-size: 2.5rem;">{p.name}</h2>
+        </div>
+        <div class="md:col-span-2">
+          <p class="font-[var(--font-newsreader)] body-lg" style="line-height: 1.5;">
+            {p.description}
+          </p>
+          <ul class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 list-none p-0">
+            {p.services.map((service) => (
+              <li class="font-[var(--font-poppins)] font-semibold text-ink" style="font-size: 1rem; padding: 12px 0; border-bottom: 1px solid rgba(13, 23, 38, 0.1);">
+                {service}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Section>
+  ))}
+</BaseLayout>

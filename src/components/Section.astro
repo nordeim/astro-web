@@ -1,0 +1,25 @@
+---
+interface Props {
+  bg?: 'paper' | 'ink' | 'mist';
+  padding?: 'xl' | 'lg' | 'md' | 'sm' | 'none';
+  id?: string;
+  class?: string;
+}
+
+const {
+  bg = 'paper',
+  padding = 'md',
+  id,
+  class: className = '',
+} = Astro.props;
+
+const bgClass = bg === 'ink' ? 'bg-ink text-paper' : bg === 'mist' ? 'bg-mist' : 'bg-paper';
+const padClass = padding === 'none' ? '' : `section-y-${padding}`;
+const classes = [bgClass, padClass, className].filter(Boolean).join(' ');
+---
+
+<section id={id} class={classes}>
+  <div class="container">
+    <slot />
+  </div>
+</section>

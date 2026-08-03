@@ -1,0 +1,120 @@
+---
+const navItems = [
+  { label: 'Services', href: '/services/', hasDropdown: true },
+  { label: 'Work', href: '/work/', hasDropdown: true },
+  { label: 'Platforms', href: '/platforms/', hasDropdown: true },
+  { label: 'Resources', href: '/resources/', hasDropdown: true },
+  { label: 'About', href: '/about/', hasDropdown: false },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container">
+    <div class="flex items-center justify-between gap-6">
+      {/* Wordmark */}
+      <a href="/" class="font-[var(--font-newsreader)] text-lg font-normal text-ink no-underline" aria-label="Kelp — Home">
+        Kelp
+      </a>
+
+      {/* Desktop nav */}
+      <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class="nav-link"
+            aria-current={currentPath === item.href ? 'page' : undefined}
+          >
+            {item.label}
+            {item.hasDropdown && (
+              <svg class="inline-block w-2 h-2" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M2 4 L5 7 L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            )}
+          </a>
+        ))}
+        <a href="/contact/" class="nav-link" aria-current={currentPath === '/contact/' ? 'page' : undefined}>
+          Contact Us
+        </a>
+        <a href="/contact/" class="btn">Hire Us</a>
+      </nav>
+
+      {/* Mobile hamburger */}
+      <button
+        type="button"
+        class="md:hidden inline-flex items-center justify-center w-10 h-10 p-2 text-ink"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-mobile-menu-toggle
+      >
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  {/* Mobile menu overlay */}
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden fixed inset-0 top-[72px] bg-paper z-50 flex flex-col p-6"
+    data-mobile-menu
+  >
+    <nav class="flex flex-col gap-6" aria-label="Mobile">
+      {navItems.map((item) => (
+        <a href={item.href} class="font-[var(--font-poppins)] text-2xl font-semibold text-ink no-underline">
+          {item.label}
+        </a>
+      ))}
+      <a href="/contact/" class="font-[var(--font-poppins)] text-2xl font-semibold text-ink no-underline">
+        Contact Us
+      </a>
+      <a href="/contact/" class="btn mt-4 self-start">Hire Us</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // === Mobile menu toggle ===
+  const toggle = document.querySelector('[data-mobile-menu-toggle]');
+  const menu = document.querySelector('[data-mobile-menu]');
+
+  if (toggle && menu) {
+    const closeMenu = () => {
+      menu.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      document.body.style.overflow = '';
+    };
+
+    const openMenu = () => {
+      menu.classList.remove('hidden');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close menu');
+      document.body.style.overflow = 'hidden';
+    };
+
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) closeMenu();
+      else openMenu();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        closeMenu();
+      }
+    });
+
+    // Close on link click
+    menu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Close on Astro page transition
+    document.addEventListener('astro:after-swap', closeMenu);
+  }
+</script>

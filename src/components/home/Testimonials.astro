@@ -1,0 +1,31 @@
+---
+import Section from '../Section.astro';
+
+const testimonials = [
+  {
+    quote: "Working with Kelp has been an absolute pleasure. I've truly enjoyed our partnership — they listen, they push back when it matters, and they delivered exactly what we needed.",
+    author: 'Sarah Mitchell',
+    role: 'Marketing Director, Spring Water Spirits',
+  },
+];
+---
+
+<Section bg="mist" padding="lg">
+  <h2 class="font-[var(--font-poppins)] font-bold h2 mb-16 text-balance" data-reveal>
+    What Our Clients Say
+  </h2>
+
+  <div class="max-w-4xl" data-reveal>
+    {testimonials.map((t) => (
+      <figure>
+        <blockquote class="font-[var(--font-newsreader)] font-light text-ink" style="font-size: 1.4rem; line-height: 1.5;">
+          &ldquo;{t.quote}&rdquo;
+        </blockquote>
+        <figcaption class="mt-8 font-[var(--font-newsreader)] text-ink" style="font-size: 1.0625rem;">
+          <span class="font-semibold">{t.author}</span>
+          <span class="text-slate"> — {t.role}</span>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+</Section>
