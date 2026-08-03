@@ -163,6 +163,131 @@ a:hover {
 }
 
 /* =============================================================================
+   Prose (rendered Markdown) — minimal styles for case study + article bodies.
+   Replaces the @tailwindcss/typography `prose` classes that were referenced
+   but never installed. Keep editorial: serif body, sans headings, generous
+   line-height. Per kelp-design-template.md, no rounded corners, no drop shadows.
+   ============================================================================= */
+
+.prose-kelp {
+  color: var(--color-black);
+}
+
+.prose-kelp > :first-child {
+  margin-top: 0;
+}
+
+.prose-kelp > :last-child {
+  margin-bottom: 0;
+}
+
+.prose-kelp h2 {
+  font-family: var(--font-poppins);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  line-height: 1.2;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-ink);
+}
+
+.prose-kelp h3 {
+  font-family: var(--font-poppins);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.75vw, 1.5rem);
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-ink);
+}
+
+.prose-kelp h4 {
+  font-family: var(--font-poppins);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-ink);
+}
+
+.prose-kelp p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose-kelp ul,
+.prose-kelp ol {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.prose-kelp ul {
+  list-style: disc;
+}
+
+.prose-kelp ol {
+  list-style: decimal;
+}
+
+.prose-kelp li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-kelp a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.prose-kelp a:hover {
+  color: var(--color-kelp);
+}
+
+.prose-kelp blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+  border-left: 3px solid var(--color-kelp);
+  font-style: italic;
+  color: var(--color-ink);
+}
+
+.prose-kelp code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  background-color: var(--color-mist);
+  padding: 0.15em 0.35em;
+}
+
+.prose-kelp pre {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.prose-kelp pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.prose-kelp hr {
+  border: none;
+  border-top: 1px solid rgba(13, 23, 38, 0.15);
+  margin: 2rem 0;
+}
+
+.prose-kelp img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+}
+
+/* =============================================================================
    Section padding scale
    ============================================================================= */
 
@@ -174,6 +299,12 @@ a:hover {
 /* =============================================================================
    Header (sticky with headroom behavior)
    ============================================================================= */
+
+:root {
+  /* Header height — used by mobile menu offset and any other layout that
+     needs to clear the sticky header. Keep in sync with .site-header padding. */
+  --header-height: 72px;
+}
 
 .site-header {
   position: sticky;
@@ -230,6 +361,84 @@ a:hover {
 .nav-link:hover::after,
 .nav-link[aria-current="page"]::after {
   transform: scaleX(1);
+}
+
+/* =============================================================================
+   Desktop nav with dropdown submenus
+   ============================================================================= */
+
+.header-nav-list {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header-nav-item {
+  position: relative;
+}
+
+.has-submenu > .nav-link svg {
+  transition: transform 200ms ease;
+}
+
+.has-submenu > .nav-link[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.header-submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 240px;
+  background-color: var(--color-paper);
+  border-top: 2px solid var(--color-kelp);
+  box-shadow: 0 8px 24px rgba(13, 23, 38, 0.08);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* Hidden by default — revealed via :hover, :focus-within, or [aria-expanded="true"] */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 150ms ease, transform 150ms ease, visibility 150ms;
+  z-index: 200;
+}
+
+/* Reveal on hover (desktop) */
+.has-submenu:hover > .header-submenu,
+.has-submenu:focus-within > .header-submenu,
+.has-submenu > .nav-link[aria-expanded="true"] + .header-submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.header-submenu-link {
+  display: block;
+  font-family: var(--font-poppins);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  text-decoration: none;
+  padding: 12px 20px;
+  background-color: var(--color-paper);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.header-submenu-link:hover,
+.header-submenu-link:focus-visible {
+  background-color: var(--color-mist);
+  color: var(--color-kelp);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-submenu,
+  .has-submenu > .nav-link svg {
+    transition: none;
+  }
 }
 
 /* =============================================================================

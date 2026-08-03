@@ -1,9 +1,48 @@
 ---
+// Submenu definitions — kept inline here (not in a content collection) because
+// the menu structure is presentation, not editorial content. Links point at
+// existing routes/anchors; verify with `npm run check:links` after any change.
 const navItems = [
-  { label: 'Services', href: '/services/', hasDropdown: true },
-  { label: 'Work', href: '/work/', hasDropdown: true },
-  { label: 'Platforms', href: '/platforms/', hasDropdown: true },
-  { label: 'Resources', href: '/resources/', hasDropdown: true },
+  {
+    label: 'Services',
+    href: '/services/',
+    hasDropdown: true,
+    submenu: [
+      { label: 'Branding & Design', href: '/services/#branding-design' },
+      { label: 'Websites', href: '/services/#websites' },
+      { label: 'Marketing & Strategy', href: '/services/#marketing-strategy' },
+      { label: 'Video & Photo', href: '/services/#media' },
+      { label: 'Ongoing Support', href: '/services/#ongoing-support' },
+    ],
+  },
+  {
+    label: 'Work',
+    href: '/work/',
+    hasDropdown: true,
+    submenu: [
+      { label: 'Case Studies', href: '/work/' },
+      { label: 'Clients', href: '/work/clients/' },
+    ],
+  },
+  {
+    label: 'Platforms',
+    href: '/platforms/',
+    hasDropdown: true,
+    submenu: [
+      { label: 'HubSpot', href: '/platforms/#hubspot' },
+      { label: 'Shopify', href: '/platforms/#shopify' },
+      { label: 'WordPress', href: '/platforms/#wordpress' },
+      { label: 'Headless', href: '/platforms/#headless' },
+    ],
+  },
+  {
+    label: 'Resources',
+    href: '/resources/',
+    hasDropdown: true,
+    submenu: [
+      { label: 'Articles', href: '/resources/' },
+    ],
+  },
   { label: 'About', href: '/about/', hasDropdown: false },
 ];
 
@@ -18,22 +57,44 @@ const currentPath = Astro.url.pathname;
         Kelp
       </a>
 
-      {/* Desktop nav */}
+      {/* Desktop nav with dropdown menus */}
       <nav class="hidden md:flex items-center gap-8" aria-label="Primary">
-        {navItems.map((item) => (
-          <a
-            href={item.href}
-            class="nav-link"
-            aria-current={currentPath === item.href ? 'page' : undefined}
-          >
-            {item.label}
-            {item.hasDropdown && (
-              <svg class="inline-block w-2 h-2" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                <path d="M2 4 L5 7 L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            )}
-          </a>
-        ))}
+        <ul class="header-nav-list">
+          {navItems.map((item, i) => (
+            <li class={`header-nav-item${item.hasDropdown ? ' has-submenu' : ''}`}>
+              <a
+                href={item.href}
+                class="nav-link"
+                aria-current={currentPath === item.href ? 'page' : undefined}
+                {...(item.hasDropdown
+                  ? {
+                      'aria-expanded': 'false',
+                      'aria-controls': `submenu-${i}`,
+                      'aria-haspopup': 'true',
+                    }
+                  : {})}
+              >
+                {item.label}
+                {item.hasDropdown && (
+                  <svg class="inline-block w-2 h-2" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M2 4 L5 7 L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                )}
+              </a>
+              {item.hasDropdown && (
+                <ul id={`submenu-${i}`} class="header-submenu">
+                  {item.submenu!.map((sub) => (
+                    <li>
+                      <a href={sub.href} class="header-submenu-link">
+                        {sub.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
         <a href="/contact/" class="nav-link" aria-current={currentPath === '/contact/' ? 'page' : undefined}>
           Contact Us
         </a>
@@ -59,7 +120,8 @@ const currentPath = Astro.url.pathname;
   {/* Mobile menu overlay */}
   <div
     id="mobile-menu"
-    class="hidden md:hidden fixed inset-0 top-[72px] bg-paper z-50 flex flex-col p-6"
+    class="hidden md:hidden fixed inset-0 bg-paper z-50 flex flex-col p-6 overflow-y-auto"
+    style="top: var(--header-height);"
     data-mobile-menu
   >
     <nav class="flex flex-col gap-6" aria-label="Mobile">
@@ -117,4 +179,60 @@ const currentPath = Astro.url.pathname;
     // Close on Astro page transition
     document.addEventListener('astro:after-swap', closeMenu);
   }
+
+  // === Desktop dropdown menus ===
+  // Open on click (toggle), close on Escape, close on outside click,
+  // close on link-click inside the submenu. Hover/focus is handled via CSS
+  // (:hover, :focus-within) so we don't need JS for that.
+  const initDropdowns = () => {
+    document.querySelectorAll<HTMLElement>('.has-submenu').forEach((item) => {
+      const trigger = item.querySelector<HTMLAnchorElement>('a[aria-expanded]');
+      if (!trigger) return;
+      if (trigger.dataset.dropdownInit === 'true') return;
+      trigger.dataset.dropdownInit = 'true';
+
+      const toggleOpen = (open: boolean) => {
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+
+      trigger.addEventListener('click', () => {
+        // Click on a nav trigger with a real href (e.g. /services/) navigates
+        // by default — we do NOT preventDefault. The dropdown toggle here is
+        // a progressive enhancement for users who want to peek at the submenu
+        // without leaving the current page.
+        const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+        // Close any other open submenu first
+        document
+          .querySelectorAll<HTMLElement>('.has-submenu a[aria-expanded="true"]')
+          .forEach((other) => {
+            if (other !== trigger) other.setAttribute('aria-expanded', 'false');
+          });
+        toggleOpen(!isOpen);
+      });
+
+      // Close on Escape
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          toggleOpen(false);
+          trigger.focus();
+        }
+      });
+    });
+
+    // Close any open submenu on outside click
+    document.addEventListener('click', (e) => {
+      const target = e.target as Node;
+      document
+        .querySelectorAll<HTMLElement>('.has-submenu')
+        .forEach((item) => {
+          if (!item.contains(target)) {
+            const t = item.querySelector<HTMLAnchorElement>('a[aria-expanded]');
+            if (t) t.setAttribute('aria-expanded', 'false');
+          }
+        });
+    });
+  };
+
+  initDropdowns();
+  document.addEventListener('astro:after-swap', initDropdowns);
 </script>
