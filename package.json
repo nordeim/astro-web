@@ -9,7 +9,9 @@
     "preview": "astro preview",
     "check": "astro check",
     "check:links": "node scripts/link-check.mjs",
-    "check:content": "node scripts/validate-content.mjs"
+    "check:content": "node scripts/validate-content.mjs",
+    "prebuild": "node scripts/verify-deps.mjs",
+    "precheck": "node scripts/verify-deps.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
