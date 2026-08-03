@@ -1,6 +1,8 @@
 # build output
 dist/
 .output/
+skills/
+skills
 
 # dependencies
 node_modules/
