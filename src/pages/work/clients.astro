@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Section from '../../components/Section.astro';
+import { getCollection } from 'astro:content';
+
+const caseStudies = await getCollection('caseStudies');
+const sortedCaseStudies = caseStudies.sort(
+  (a, b) => a.data.client.localeCompare(b.data.client)
+);
+---
+
+<BaseLayout
+  title="Client List — Kelp Creative Agency"
+  description="A complete list of clients we've partnered with across branding, web, marketing, and media. Central Florida businesses we've helped grow."
+>
+  <PageHeader
+    eyebrow="Our Clients"
+    title="A few of the brands we've built with."
+    description="From breweries to meat markets to family entertainment centers, we partner with Central Florida businesses that take craft seriously. Below is a selection of our client roster."
+  />
+
+  <Section bg="paper" padding="md">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {sortedCaseStudies.map((cs) => (
+        <article data-reveal>
+          <a
+            href={`/work/${cs.id}/`}
+            class="block no-underline group"
+          >
+            <div
+              class="aspect-[4/3] w-full mb-4 transition-opacity group-hover:opacity-90"
+              style="background: linear-gradient(135deg, var(--color-teal), var(--color-seafoam));"
+            >
+            </div>
+            <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.75rem; letter-spacing: 0.1em;">
+              {cs.data.category}
+            </p>
+            <h2 class="font-[var(--font-poppins)] font-semibold mt-2 text-ink group-hover:text-kelp transition-colors" style="font-size: 1.4rem; line-height: 1.2;">
+              {cs.data.client}
+            </h2>
+            <p class="font-[var(--font-newsreader)] mt-2 text-ink" style="font-size: 1rem; line-height: 1.6;">
+              {cs.data.description}
+            </p>
+          </a>
+        </article>
+      ))}
+    </div>
+  </Section>
+
+  <Section bg="ink" padding="md">
+    <div class="text-center max-w-3xl mx-auto" data-reveal>
+      <h3 class="font-[var(--font-poppins)] font-bold text-paper h2 text-balance">
+        Want to be on this list?
+      </h3>
+      <p class="font-[var(--font-newsreader)] text-paper mt-6 body-lead" style="opacity: 0.9;">
+        We're always looking for new partners with great ideas. Tell us about your project.
+      </p>
+      <a href="/contact/" class="btn btn--on-dark mt-10">
+        Start a Project
+      </a>
+    </div>
+  </Section>
+</BaseLayout>

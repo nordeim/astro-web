@@ -1,14 +1,14 @@
 ---
-title: "Partners VS Pirates"
-category: " Navigating an Ocean of Digital Agencies"
-excerpt: "Agency Life:How to tell a true agency partner from a pirate in sheep's clothing."
+title: "Partners VS Pirates: Navigating an Ocean of Digital Agencies"
+category: "Agency Life"
+excerpt: "How to tell a true agency partner from a pirate in sheep's clothing."
 publishDate: 2026-05-08
 author: "Kelp Team"
 ---
 
-# Partners VS Pirates
+# Partners VS Pirates: Navigating an Ocean of Digital Agencies
 
-Agency Life:How to tell a true agency partner from a pirate in sheep's clothing.
+Agency Life: How to tell a true agency partner from a pirate in sheep's clothing.
 
 ## The Full Story
 
