@@ -1,7 +1,7 @@
 ---
 name: astro-7-patterns
 description: Astro 7 supplement skill — distilled patterns, anti-patterns, troubleshooting playbooks, and hard-won lessons from a production clone build. Covers the Astro 7 Rust compiler's strict apostrophe handling, Content Layer + Zod 4 imports, View Transitions script re-initialization, Fonts API + Tailwind 4 @theme integration, headroom sticky headers, vanilla JS carousels, mobile menu accessibility, dark/light section systems, and design extraction via agent-browser. Use when building a real Astro 7 site (not just reading docs) — every pattern below was debugged in a live build. Pairs with the canonical `astro-7` skill.
-license: Proprietary. LICENSE.txt has complete terms
+version: 1.0
 ---
 
 # Astro 7 Patterns — Field Notes from a Production Clone Build
