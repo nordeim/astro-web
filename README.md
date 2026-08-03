@@ -50,11 +50,15 @@ npm run dev          # → http://localhost:4321
 **Build & preview the production output:**
 
 ```bash
-npm run build        # → static output in dist/
+npm run build        # → static output in dist/ (+ sitemap-index.xml)
 npm run preview      # → serve dist/ on http://localhost:4321
 ```
 
 **Requirements:** Node.js ≥ 22.12.0 (even versions only — Astro 7 constraint).
+
+### After pulling new commits
+
+If you've pulled commits that added or changed dependencies, **re-run `npm install`** before `npm run build` or `npm run check`. The `prebuild` and `precheck` npm lifecycle hooks will automatically verify that config-level dependencies (`astro`, `@astrojs/sitemap`, `@tailwindcss/vite`) are installed; if any are missing, the build fails fast with a clear "run `npm install`" message instead of a confusing Vite stack trace.
 
 ### Verify Setup
 
@@ -67,7 +71,7 @@ npm run preview      # → serve dist/ on http://localhost:4321
 | Build | `npm run build` | `dist/` populated; `Complete!` with route list + `sitemap-index.xml` |
 | Dev | `npm run dev` | Server reachable at `http://localhost:4321/`; homepage renders |
 
-> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. There is no test runner, linter, or formatter configured.
+> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. The `prebuild` and `precheck` hooks (see `scripts/verify-deps.mjs`) auto-verify config-level dependencies before `build`/`check` run. There is no test runner, linter, or formatter configured.
 
 ---
 
@@ -88,18 +92,22 @@ npm run preview      # → serve dist/ on http://localhost:4321
 │   ├── 📄 IMPLEMENTATION_PLAN.md    # Phased build plan with checklists
 │   ├── 📄 astro-7-patterns.md       # Copy of the root reference
 │   ├── 📄 astro-7-SKILL.md           # Astro 7 skill reference
-│   └── 📂 audit/                    # 2026-08-04 code audit + remediation plan
-│       ├── 📄 AUDIT_FINDINGS.md      # 26 findings (4 Critical, 8 High, 6 Medium, 5 Low, 3 Info)
-│       └── 📄 REMEDIATION_PLAN.md    # Phase-by-phase fix plan + TDD strategy
+│   └── 📂 audit/                    # 2026-08-04 code audit + remediation plans
+│       ├── 📄 AUDIT_FINDINGS.md      # Round 1: 26 findings (4 Critical, 8 High, 6 Medium, 5 Low, 3 Info)
+│       ├── 📄 REMEDIATION_PLAN.md    # Round 1: phase-by-phase fix plan + TDD strategy
+│       └── 📄 REMEDIATION_PLAN_ROUND2.md  # Round 2: build-error root cause + dep guard + OG image
 │
 ├── 📂 public/
 │   ├── 📄 favicon.svg                # Kelp "K" wordmark
+│   ├── 📄 og-default.png             # Default Open Graph image (1200×630) — replace with designed asset
 │   ├── 📄 robots.txt                 # Crawler directives + sitemap reference
 │   └── 📂 images/                    # Static image assets
 │
-├── 📂 scripts/                      # Project-specific regression tests
+├── 📂 scripts/                      # Project-level scripts (regression tests + generators)
 │   ├── 📄 link-check.mjs             # Static link checker — scans dist/ for broken internal links
-│   └── 📄 validate-content.mjs       # Content frontmatter validator — schema-critical field checks
+│   ├── 📄 validate-content.mjs       # Content frontmatter validator — schema-critical field checks
+│   ├── 📄 verify-deps.mjs            # prebuild/precheck guard — verifies config-level deps are installed
+│   └── 📄 generate-og-image.py       # Renders public/og-default.png via PIL (re-run if design changes)
 │
 └── 📂 src/
     ├── 📂 components/
@@ -277,3 +285,8 @@ Proprietary. This is a clone built for demonstration purposes. The original kelp
   - **Tests:** Added `scripts/link-check.mjs` (static internal-link checker) and `scripts/validate-content.mjs` (frontmatter validator), wired as `npm run check:links` and `npm run check:content`.
   - **Docs:** Updated `README.md`, `AGENTS.md`, `CLAUDE.md`, and `docs/kelp-design-template.md` to reflect the remediated state. Added `docs/audit/AUDIT_FINDINGS.md` and `docs/audit/REMEDIATION_PLAN.md`.
   - **Result:** 21 pages built (was 17); 0 broken internal links; 0 content validation errors; `npm run check` clean.
+- **2026-08-04 (round 2)** — Build-error remediation. Triggered by a user report that `npm run build` failed with `Cannot find module '@astrojs/sitemap'` after pulling the round-1 commits without running `npm install`. Root cause: `astro.config.mjs` imports config-level deps at module load; if `node_modules/` is stale, Vite throws a confusing stack trace. Fixes:
+  - **`prebuild` / `precheck` dep verification (B1):** Added `scripts/verify-deps.mjs` — a zero-dependency Node script that checks `astro`, `@astrojs/sitemap`, `@tailwindcss/vite`, `@astrojs/check`, and `typescript` are installed before `astro build` or `astro check` runs. Wired as npm `prebuild` and `precheck` lifecycle hooks. On missing deps, prints a clear "run `npm install`" message and exits 1 — no more Vite stack trace.
+  - **Default OG image (B2):** Created `public/og-default.png` (1200×630, 23 KB) via `scripts/generate-og-image.py` (PIL). The OG image meta tag (wired in round-1 L1) now resolves to a real file instead of 404. The image is a functional placeholder — kelp-green accent bar, "Kelp" wordmark in serif, tagline below, on an ink background. The maintainer can replace it with a designed asset at the same dimensions.
+  - **Documentation (B3):** Added an "After pulling new commits" note to README Quick Start; documented the `prebuild`/`precheck` hooks in README, AGENTS.md, and CLAUDE.md. Added `docs/audit/REMEDIATION_PLAN_ROUND2.md` with root-cause analysis and TDD evidence.
+  - **Result:** `rm -rf node_modules dist && npm run build` now fails fast with a helpful message (verified). `npm install && npm run build` succeeds — 21 pages, sitemap, 0 broken links, 0 content errors, 0 type errors.

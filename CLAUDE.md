@@ -50,15 +50,16 @@ A production-ready static clone of [kelp.agency](https://www.kelp.agency/), a cr
 ### Environment Setup
 ```bash
 npm install          # use npm, not pnpm/yarn — lockfile is package-lock.json, no monorepo
+                      # re-run after pulling — new commits may add dependencies
 ```
 
 ### Build Commands
 | Command | Purpose |
 |---------|---------|
 | `npm run dev` | Dev server at `http://localhost:4321` |
-| `npm run build` | Static build to `dist/` (also emits `sitemap-index.xml`) |
+| `npm run build` | Static build to `dist/` (also emits `sitemap-index.xml`). `prebuild` hook verifies deps first. |
 | `npm run preview` | Serve the built `dist/` |
-| `npm run check` | `astro check` — TypeScript + `.astro` diagnostics |
+| `npm run check` | `astro check` — TypeScript + `.astro` diagnostics. `precheck` hook verifies deps first. |
 | `npm run check:links` | Static internal-link checker. Run AFTER `npm run build`. |
 | `npm run check:content` | Content frontmatter validator. Run any time. |
 
@@ -68,11 +69,12 @@ Requires **Node.js 22.12.0+** (Astro 7 constraint).
 
 **No test runner, linter, or formatter is configured.** Verification is:
 
-- `npm run check` — TypeScript + `.astro` diagnostics (Astro's built-in).
+- `npm run check` — TypeScript + `.astro` diagnostics (Astro's built-in). The `precheck` hook runs `scripts/verify-deps.mjs` first to catch missing config-level dependencies before `astro check` tries to load them.
 - `npm run check:links` — project-level static link checker. Walks `dist/**/*.html` after a build and verifies every internal `href`/`src` resolves to a file. Catches broken internal links and missing anchor targets.
 - `npm run check:content` — project-level frontmatter validator. Reads `src/content/**/*.{md,yaml}` and asserts schema-critical fields are present, non-empty, and correctly typed. Catches malformed frontmatter before it ships.
+- `prebuild` / `precheck` dep guard (`scripts/verify-deps.mjs`) — runs automatically before `npm run build` and `npm run check`. Verifies `astro`, `@astrojs/sitemap`, `@tailwindcss/vite`, `@astrojs/check`, and `typescript` are installed. If any are missing, exits 1 with a "run `npm install`" message instead of a Vite stack trace.
 
-Run all three before claiming work is done. Do not assume `npm test` exists. The link/content checkers live in `scripts/` at the repo root — see `scripts/link-check.mjs` and `scripts/validate-content.mjs`.
+Run all three checkers before claiming work is done. Do not assume `npm test` exists. The scripts live in `scripts/` at the repo root.
 
 ## Git & Version Control
 
