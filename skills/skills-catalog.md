@@ -13,6 +13,7 @@
 | **agent-browser** | A fast Rust-based headless browser automation CLI with Node.js fallback that enables AI agents to navigate, click, type, and snapshot pages via structured commands. Is a better choice for AI agent workflows - compact snapshots save tokens, the auth vault handles credentials securely, and React DevTools integration is valuable for frontend debugging. |
 | **api-and-interface-design** | Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend. |
 | **astro-7** | Astro 7, content-focused web framework workflow skill — the islands architecture. Covers the server-first mental model (zero JS by default — Astro components render to static HTML at build time, hydration is opt-in per-component via client:load / client:idle / client:visible / client:only directives), the multi-framework integration (use React, Vue, Svelte, Preact, Solid, or Lit components in the same Astro project — @astrojs/react, @astrojs/vue, etc.), content collections (the type-safe Markdown/MDX authoring system with Zod schemas — Content Layer API in Astro 7 replaces the legacy file-b... |
+| **astro-7-patterns** | Astro 7 supplement — distilled patterns, anti-patterns, and troubleshooting playbooks from a production clone build. Covers Rust compiler strict apostrophe handling, Content Layer + Zod 4 import fixes, View Transitions script re-init on `astro:after-swap`, Tailwind 4 `@theme` + Astro Fonts API integration, headroom sticky headers, vanilla JS carousels, WCAG 2.2 AA mobile menu accessibility, polymorphic `<a>`/`<button>` components, section system patterns, design extraction via `agent-browser`, `getStaticPaths` dynamic routes, `astro check` type-error gotchas, production build optimization, and a 10-item troubleshooting playbook. Use when building a real Astro 7 site — pairs with the canonical `astro-7` skill. |
 | **authjs-vs-better-auth** | Compares Auth.js v5 and Better Auth for Next.js 16 projects. Side-by-side code for instance setup, route handlers, client auth, and server sessions. Database schema mapping for migration. Proxy.ts route protection pattern. Use when choosing an auth library, migrating from Auth.js to Better Auth, implementing proxy.ts checks, or debugging Next.js 16 auth issues. |
 | **avant-garde-design-v4** | Elite web design skill for producing distinctive, production-grade frontend interfaces. Use when: (1) Building new web UI from scratch, (2) Creating luxury/premium brand experiences, (3) Designing landing pages, marketing sites, or product showcases, (4) Reviewing UI designs for Anti-Generic compliance, (5) Establishing design direction for a project, (6) Migrating from Tailwind v3 to v4, (7) Debugging mobile navigation issues, (8) User asks for "avant-garde", "distinctive", "non-generic", "luxury", or "premium" design. Triggers on phrases like "create a beautiful website", "design a landin... |
 | **brutalist-portfolio-nextjs** | Complete Next.js 16 + React 19 + TypeScript strict brutalist portfolio reference. App Router, Server Components, 16 components, design system with Tailwind v4 CSS-first @theme, 8+ remediation phases, 52 lessons learned. Covers WCAG AAA accessibility, custom hooks, anti-pattern debugging, before/after debugging, mobile nav debugging. Use when building brutalist/avant-garde portfolio sites or reconstructing a production-grade Next.js portfolio from scratch. |
@@ -296,7 +297,7 @@
 
 | # | Category | Count |
 |---|----------|-------|
-| 1 | Frontend Development & UI Engineering | 54 |
+| 1 | Frontend Development & UI Engineering | 55 |
 | 2 | Design Artifacts & Visual Creation | 18 |
 | 3 | Full-Stack & Backend Development | 20 |
 | 4 | AI / ML / Multimodal SDK Skills | 15 |
@@ -306,7 +307,7 @@
 | 8 | Documentation & Content Creation | 17 |
 | 9 | Career, Learning & Personal Development | 11 |
 | 10 | DevOps, Infrastructure & External Integrations | 11 |
-| | **Total** | **204** |
+| | **Total** | **205** |
 
 ---
 
