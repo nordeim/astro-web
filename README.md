@@ -12,7 +12,7 @@
 
 > A production-ready clone of [kelp.agency](https://www.kelp.agency/) built with **Astro 7** and **Tailwind CSS 4**.
 
-> **Status:** ✅ Complete — 17 pages built, all routes return 200, `npm run check` passes. Verified against the kelp.agency live site on 2026-08-03.
+> **Status:** ✅ Remediated — 21 pages built, all internal links resolve (verified via `npm run check:links`), all content frontmatter valid (verified via `npm run check:content`), `npm run check` passes. Verified against the kelp.agency live site on 2026-08-04; see `docs/audit/AUDIT_FINDINGS.md` for the audit and `docs/audit/REMEDIATION_PLAN.md` for the fix log.
 >
 > **Live preview:** `npm run preview` after `npm install` → `http://localhost:4321/`.
 
@@ -62,10 +62,12 @@ npm run preview      # → serve dist/ on http://localhost:4321
 |------|---------|----------|
 | Install | `npm install` | Completes with a tree of 230+ packages, no peer errors |
 | Type-check | `npm run check` | `0 errors` / `0 hints` from `astro check` |
-| Build | `npm run build` | `dist/` populated; `Complete!` with route list |
+| Link check | `npm run check:links` | `✓ All internal links resolve.` (after `npm run build`) |
+| Content check | `npm run check:content` | `✓ All content files valid.` |
+| Build | `npm run build` | `dist/` populated; `Complete!` with route list + `sitemap-index.xml` |
 | Dev | `npm run dev` | Server reachable at `http://localhost:4321/`; homepage renders |
 
-> **Note:** `npm run check` (`astro check`) is the **only** verification step in this repo. There is no test runner, linter, or formatter configured.
+> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. There is no test runner, linter, or formatter configured.
 
 ---
 
@@ -73,10 +75,10 @@ npm run preview      # → serve dist/ on http://localhost:4321
 
 ```
 📂 kelp-clone/
-├── 📄 astro.config.mjs              # Astro + Tailwind 4 + Fonts API config
+├── 📄 astro.config.mjs              # Astro + Tailwind 4 + Fonts API + Sitemap config
 ├── 📄 content.config.ts             # (src/) Content Layer collections + Zod schemas
 ├── 📄 tsconfig.json                 # Extends astro/tsconfigs/strict
-├── 📄 package.json                  # name: kelp-clone; npm scripts only
+├── 📄 package.json                  # name: kelp-clone; npm scripts (incl. check:links, check:content)
 ├── 📄 AGENTS.md                     # Compact agent instructions (gotchas & commands)
 ├── 📄 CLAUDE.md                     # Full agent operating manual (Meticulous Approach)
 ├── 📄 astro-7-patterns.md            # Long Astro 7 reference used during build (46 KB)
@@ -85,51 +87,59 @@ npm run preview      # → serve dist/ on http://localhost:4321
 │   ├── 📄 kelp-design-template.md   # Source-of-truth design spec (extracted from kelp.agency)
 │   ├── 📄 IMPLEMENTATION_PLAN.md    # Phased build plan with checklists
 │   ├── 📄 astro-7-patterns.md       # Copy of the root reference
-│   └── 📄 astro-7-SKILL.md           # Astro 7 skill reference
+│   ├── 📄 astro-7-SKILL.md           # Astro 7 skill reference
+│   └── 📂 audit/                    # 2026-08-04 code audit + remediation plan
+│       ├── 📄 AUDIT_FINDINGS.md      # 26 findings (4 Critical, 8 High, 6 Medium, 5 Low, 3 Info)
+│       └── 📄 REMEDIATION_PLAN.md    # Phase-by-phase fix plan + TDD strategy
 │
 ├── 📂 public/
 │   ├── 📄 favicon.svg                # Kelp "K" wordmark
+│   ├── 📄 robots.txt                 # Crawler directives + sitemap reference
 │   └── 📂 images/                    # Static image assets
+│
+├── 📂 scripts/                      # Project-specific regression tests
+│   ├── 📄 link-check.mjs             # Static link checker — scans dist/ for broken internal links
+│   └── 📄 validate-content.mjs       # Content frontmatter validator — schema-critical field checks
 │
 └── 📂 src/
     ├── 📂 components/
-    │   ├── 📄 Header.astro          # Sticky nav, headroom behavior + mobile menu
-    │   ├── 📄 Footer.astro          # 5-column footer
+    │   ├── 📄 Header.astro          # Sticky nav, headroom behavior + mobile menu + dropdown menus
+    │   ├── 📄 Footer.astro          # 5-column footer (with Headless platform link)
     │   ├── 📄 Button.astro          # Square-cornered button (primary / on-dark / secondary)
     │   ├── 📄 Section.astro         # Section wrapper (bg/padding variants)
     │   ├── 📄 PageHeader.astro      # Inner-page hero
-    │   └── 📂 home/                  # Homepage sections
+    │   └── 📂 home/                  # Homepage sections (all consume content collections)
     │       ├── 📄 Hero.astro          # Type-as-image hero (H1 is the visual)
-    │       ├── 📄 RecentWork.astro    # Vanilla-JS carousel (ships JS)
-    │       ├── 📄 Services.astro       # 5-column service grid
+    │       ├── 📄 RecentWork.astro    # Vanilla-JS carousel — uses caseStudies collection
+    │       ├── 📄 Services.astro       # 5-column service grid — uses services collection
     │       ├── 📄 HowWeWork.astro     # 5-step process
-    │       ├── 📄 Testimonials.astro
-    │       ├── 📄 FeaturedArticles.astro
+    │       ├── 📄 Testimonials.astro   # Uses testimonials collection (3 entries)
+    │       ├── 📄 FeaturedArticles.astro # Uses articles collection (top 3 by date)
     │       └── 📄 CTA.astro
     │
-    ├── 📂 content/                   # Markdown + YAML content
-    │   ├── 📂 case-studies/           # 6 case studies (.md)
-    │   ├── 📂 services/               # 5 service categories (.md)
+    ├── 📂 content/                   # Markdown + YAML content (single source of truth)
+    │   ├── 📂 case-studies/           # 9 case studies (.md) — incl. marker-48, croom-brewery, beverlin-hills-quality-goods
+    │   ├── 📂 services/               # 5 service categories (.md) — with anchor + offerings
     │   ├── 📂 articles/               # 3 articles (.md)
     │   └── 📂 testimonials/           # 3 testimonials (.yaml)
     ├── 📄 content.config.ts          # Content Layer collections + Zod schemas
     ├── 📄 env.d.ts                   # Ambient types
     │
     ├── 📂 layouts/
-    │   └── 📄 BaseLayout.astro       # HTML shell + ClientRouter + scroll-reveal script
+    │   └── 📄 BaseLayout.astro       # HTML shell + ClientRouter + scroll-reveal + SEO meta (OG, Twitter, canonical, sitemap)
     │
     ├── 📂 pages/
     │   ├── 📄 index.astro            # Homepage
     │   ├── 📄 404.astro              # Custom 404
     │   ├── 📄 about.astro
     │   ├── 📄 contact.astro          # Stub contact form (UNWIRED — see Contact form)
-    │   ├── 📂 services/   → index.astro
-    │   ├── 📂 work/       → index.astro (grid) + [slug].astro (case study)
-    │   ├── 📂 platforms/  → index.astro
+    │   ├── 📂 services/   → index.astro (uses services collection)
+    │   ├── 📂 work/       → index.astro (grid) + [slug].astro (case study) + clients.astro (client list)
+    │   ├── 📂 platforms/  → index.astro (4 platforms incl. Headless)
     │   └── 📂 resources/  → index.astro (list) + [slug].astro (article)
     │
     └── 📂 styles/
-        └── 📄 global.css             # Tailwind 4 `@import "tailwindcss"` + @theme tokens
+        └── 📄 global.css             # Tailwind 4 `@import "tailwindcss"` + @theme tokens + .prose-kelp + dropdown menu styles
 ```
 
 > `dist/` and `.astro/` are generated (gitignored). The `skills/` symlink targets `~/.pi/agent/skills` and is gitignored — it is not part of this repo.
@@ -256,3 +266,14 @@ Proprietary. This is a clone built for demonstration purposes. The original kelp
 ## Changelog
 
 - **2026-08-03** — Initial build. 17 pages, 4 content collections, 18 components. Verified against kelp.agency live site.
+- **2026-08-04** — Remediation pass. 26 findings addressed (4 Critical, 8 High, 6 Medium, 5 Low, 3 Informational). Highlights:
+  - **Critical:** Fixed 5 broken internal links (Hero `Marker 48`, `Beverlin Hills`; Footer `Clients`; 5 placeholder `#` links); corrected malformed `partners-vs-pirates.md` frontmatter.
+  - **Content:** Added 3 missing case studies (`marker-48`, `croom-brewery`, `beverlin-hills-quality-goods`) and a new `/work/clients/` page; populated service `offerings` arrays; all homepage sections now consume content collections (single source of truth).
+  - **SEO/Config:** `astro.config.mjs` `site` now points at the deployed `https://astro.jesspete.shop` domain (canonical URLs + OG URLs fixed); added `@astrojs/sitemap` integration + `public/robots.txt`; corrected `theme-color` meta; added `og:site_name`, default OG image meta, and Twitter card meta.
+  - **A11y:** Carousel wrapper now keyboard-focusable with `role="region"` and slide `aria-roledescription="slide"` semantics; arrow-key nav with `preventDefault`.
+  - **Header:** Added dropdown menus for Services, Work, Platforms, Resources (with `aria-expanded`, `aria-controls`, Escape-to-close, outside-click-to-close, hover/focus reveal via CSS).
+  - **Platforms:** Added 4th platform (Headless) to `/platforms/` and Footer.
+  - **Polish:** Replaced unused `prose prose-lg` classes (no `@tailwindcss/typography` installed) with a project-local `.prose-kelp` style block; reduced 404 page top padding; extracted header height to `--header-height` CSS variable for the mobile menu offset.
+  - **Tests:** Added `scripts/link-check.mjs` (static internal-link checker) and `scripts/validate-content.mjs` (frontmatter validator), wired as `npm run check:links` and `npm run check:content`.
+  - **Docs:** Updated `README.md`, `AGENTS.md`, `CLAUDE.md`, and `docs/kelp-design-template.md` to reflect the remediated state. Added `docs/audit/AUDIT_FINDINGS.md` and `docs/audit/REMEDIATION_PLAN.md`.
+  - **Result:** 21 pages built (was 17); 0 broken internal links; 0 content validation errors; `npm run check` clean.

@@ -663,27 +663,51 @@ import { ClientRouter } from 'astro:transitions';
 
 Before considering the clone complete, verify each of these against the live `kelp.agency`:
 
-- [ ] H1 reads "Central Florida's Award Winning Creative Agency." in Poppins 700, ~68px
-- [ ] Body text is Newsreader 400, ~18px, line-height ~1.8
-- [ ] All buttons have `border-radius: 0` (square corners)
-- [ ] All buttons use Newsreader (not Poppins) for button text
-- [ ] Recent Work section has dark `#0d1726` background
-- [ ] How We Work section has dark `#0d1726` background and oversized H2
-- [ ] Testimonials section has `#f4f4f4` background
-- [ ] Footer has dark `#0d1726` background with 5 columns
-- [ ] Header is sticky with headroom behavior (hides on scroll down)
-- [ ] Nav links are Poppins 600, 15px, color `#0d1726`
-- [ ] No images on homepage hero (typography only)
-- [ ] No rounded corners anywhere
-- [ ] No drop shadows for depth
-- [ ] Kelp green `#42c634` appears only on hover states and accents
-- [ ] Italic Newsreader is used for editorial emphasis in body copy
-- [ ] "Hire Us" button in header and "Schedule a Meeting" button in CTA section
-- [ ] 5-step process: Discovery → Planning → Production → Market → Ongoing Support
-- [ ] 5 service categories: Branding & Design, Websites, Marketing & Strategy, Media, Ongoing Support
-- [ ] 3 featured articles in resources section
-- [ ] Copyright line includes "Designed by humans and coded with ❤️"
+- [x] H1 reads "Central Florida's Award Winning Creative Agency." in Poppins 700, ~68px
+- [x] Body text is Newsreader 400, ~18px, line-height ~1.8
+- [x] All buttons have `border-radius: 0` (square corners)
+- [x] All buttons use Newsreader (not Poppins) for button text
+- [x] Recent Work section has dark `#0d1726` background
+- [x] How We Work section has dark `#0d1726` background and oversized H2
+- [x] Testimonials section has `#f4f4f4` background
+- [x] Footer has dark `#0d1726` background with 5 columns
+- [x] Header is sticky with headroom behavior (hides on scroll down)
+- [x] Nav links are Poppins 600, 15px, color `#0d1726`
+- [x] No images on homepage hero (typography only)
+- [x] No rounded corners anywhere
+- [x] No drop shadows for depth
+- [x] Kelp green `#42c634` appears only on hover states and accents
+- [x] Italic Newsreader is used for editorial emphasis in body copy
+- [x] "Hire Us" button in header and "Schedule a Meeting" button in CTA section
+- [x] 5-step process: Discovery → Planning → Production → Market → Ongoing Support
+- [x] 5 service categories: Branding & Design, Websites, Marketing & Strategy, Media, Ongoing Support
+- [x] 3 featured articles in resources section
+- [x] Copyright line includes "Designed by humans and coded with ❤️"
+
+### Added 2026-08-04 (post-remediation)
+
+- [x] Header nav has dropdown menus for Services, Work, Platforms, Resources (`aria-expanded`, `aria-controls`, Escape to close, outside-click to close, hover/focus reveal via CSS)
+- [x] All 9 case studies from the original `/work/` page are present (Spring Water Spirits, Deals In Dirt, Hart's Meat Market, Elev8 Fun, Mountaineer Coffee, Unprofitable, Marker 48 Brewing, Croom Brewery, Beverlin Hills Quality Goods)
+- [x] All 4 platforms from the original `/platforms/` page are present (HubSpot, Shopify, WordPress, Headless)
+- [x] `/work/clients/` page exists (mirrors `kelp.agency/work/clients/`)
+- [x] Hero "client logos" links resolve to existing case study pages (no 404s)
+- [x] Footer "Clients" link resolves to `/work/clients/` (no 404)
+- [x] No placeholder `href="#"` links anywhere on the site
+- [x] `astro.config.mjs` `site` is the deployed production URL (`https://astro.jesspete.shop`)
+- [x] Canonical URLs and OG URLs point at the deployed domain
+- [x] `public/robots.txt` exists and references the sitemap
+- [x] `sitemap-index.xml` is generated at build time
+- [x] `<meta name="theme-color">` matches the default page background (`#ffffff`)
+- [x] Default OG image meta tag is wired (image file `public/og-default.png` is the maintainer's responsibility)
+- [x] Carousel wrapper is keyboard-focusable (`tabindex="0"`, `role="region"`, `aria-label`)
+- [x] Carousel slides have `role="group"`, `aria-roledescription="slide"`, and `aria-label="Slide N of M: {title}"`
+- [x] Carousel responds to ArrowLeft / ArrowRight when focused (with `preventDefault`)
+- [x] Mobile menu offset uses `var(--header-height)` (not a hardcoded `72px`)
+- [x] All homepage sections consume content collections via `getCollection()` (single source of truth)
+- [x] `npm run check` passes with 0 errors / 0 warnings / 0 hints
+- [x] `npm run check:links` reports 0 broken internal links
+- [x] `npm run check:content` reports 0 invalid frontmatter entries
 
 ---
 
-*End of design template. All values verified via direct measurement of `https://www.kelp.agency/` on 2026-08-03.*
+*End of design template. All values verified via direct measurement of `https://www.kelp.agency/` on 2026-08-03. Post-remediation verification performed on 2026-08-04 — see `docs/audit/AUDIT_FINDINGS.md` and `docs/audit/REMEDIATION_PLAN.md`.*

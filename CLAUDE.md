@@ -28,11 +28,11 @@ A production-ready static clone of [kelp.agency](https://www.kelp.agency/), a cr
 ## Implementation Standards
 
 ### Astro 7 Conventions
-- **File-based routing** in `src/pages/`. Dynamic routes use `getStaticPaths()` — only `work/[slug].astro` and `resources/[slug].astro` exist.
+- **File-based routing** in `src/pages/`. Dynamic routes use `getStaticPaths()` — only `work/[slug].astro` and `resources/[slug].astro` exist. `/work/clients/` is a static page.
 - **Layout order**: `Header.astro` → page body wrapped in `Section.astro` / `PageHeader.astro` → `Footer.astro`, all inside `BaseLayout.astro`. Homepage composes sections from `src/components/home/`.
-- **Content Layer API** (not legacy collections). Collections defined in `src/content.config.ts` use `glob()` loader + `z` from `astro/zod` (not standalone Zod). Query via `getCollection()` / `getEntry()` / `render()`.
-- **View Transitions** (`ClientRouter` in `BaseLayout.astro`). Any client-side init **must re-run on `astro:after-swap`** or it breaks on subsequent navigations.
-- **`src/scripts/` exists but is empty.** Client JS is inlined in components, not imported from there.
+- **Content Layer API (single source of truth).** Collections defined in `src/content.config.ts` use `glob()` loader + `z` from `astro/zod` (not standalone Zod). All homepage sections now consume collections via `getCollection()` — `RecentWork.astro` (caseStudies), `Services.astro` + `services/index.astro` (services), `Testimonials.astro` (testimonials), `FeaturedArticles.astro` (articles). Do not re-introduce hardcoded data arrays.
+- **View Transitions** (`ClientRouter` in `BaseLayout.astro`). Any client-side init **must re-run on `astro:after-swap`** or it breaks on subsequent navigations. The Header dropdown script, mobile menu script, and carousel init script all follow this pattern.
+- **`src/scripts/` exists but is empty.** Project-level scripts (link-checker, content validator) live in `scripts/` at the repo root. Client JS is inlined in components.
 
 ### Tailwind 4
 - Wired through **Vite, not PostCSS**. `tailwindcss()` plugin lives in `astro.config.mjs`. There is **no `tailwind.config.js`** — do not create one.
@@ -56,15 +56,23 @@ npm install          # use npm, not pnpm/yarn — lockfile is package-lock.json,
 | Command | Purpose |
 |---------|---------|
 | `npm run dev` | Dev server at `http://localhost:4321` |
-| `npm run build` | Static build to `dist/` |
+| `npm run build` | Static build to `dist/` (also emits `sitemap-index.xml`) |
 | `npm run preview` | Serve the built `dist/` |
-| `npm run check` | `astro check` — TypeScript + `.astro` diagnostics. **Only verification step.** |
+| `npm run check` | `astro check` — TypeScript + `.astro` diagnostics |
+| `npm run check:links` | Static internal-link checker. Run AFTER `npm run build`. |
+| `npm run check:content` | Content frontmatter validator. Run any time. |
 
 Requires **Node.js 22.12.0+** (Astro 7 constraint).
 
 ## Testing Strategy
 
-**There is no test runner, linter, or formatter configured.** Verification is `npm run check` (and `npm run build` to confirm static output). Do not assume `npm test` exists. If you add tests, also document the command here.
+**No test runner, linter, or formatter is configured.** Verification is:
+
+- `npm run check` — TypeScript + `.astro` diagnostics (Astro's built-in).
+- `npm run check:links` — project-level static link checker. Walks `dist/**/*.html` after a build and verifies every internal `href`/`src` resolves to a file. Catches broken internal links and missing anchor targets.
+- `npm run check:content` — project-level frontmatter validator. Reads `src/content/**/*.{md,yaml}` and asserts schema-critical fields are present, non-empty, and correctly typed. Catches malformed frontmatter before it ships.
+
+Run all three before claiming work is done. Do not assume `npm test` exists. The link/content checkers live in `scripts/` at the repo root — see `scripts/link-check.mjs` and `scripts/validate-content.mjs`.
 
 ## Git & Version Control
 
