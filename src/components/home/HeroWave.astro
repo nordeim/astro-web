@@ -1,0 +1,41 @@
+---
+/**
+ * HeroWave.astro — Decorative wave-gradient divider at the bottom of the hero.
+ *
+ * Reproduces the original kelp.agency's `class="hero-water"` SVG: a wide,
+ * shallow wave filled with an aqua-to-teal gradient (#bef3f4 → #80e6e9),
+ * with a wide-gamut `color(display-p3 …)` fallback for capable displays.
+ *
+ * Per docs/kelp-design-template.md §6 "Design DNA":
+ *   - No drop shadows for depth (color contrast only)
+ *   - No rounded corners on the wave (sharp path transitions)
+ *   - Restrained accent palette — this is the one large accent fill on the
+ *     homepage, balanced against the otherwise ink/paper/mist palette.
+ *
+ * The SVG is inline (not an <img>) so it inherits the document's color
+ * management and scales crisply at any width. preserveAspectRatio="none"
+ * lets the wave stretch to full viewport width without distorting the
+ * vertical scale (the wave height is fixed by the viewBox).
+ */
+---
+
+<svg
+  class="hero-water"
+  viewBox="0 0 1445.2 161.3"
+  width="100%"
+  height="161.3"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id="hero-wave-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bef3f4" />
+      <stop offset="100%" stop-color="#80e6e9" />
+    </linearGradient>
+  </defs>
+  <path
+    d="M0,80 C180,140 360,20 720,80 C1080,140 1260,20 1445.2,80 L1445.2,161.3 L0,161.3 Z"
+    fill="url(#hero-wave-gradient)"
+  />
+</svg>

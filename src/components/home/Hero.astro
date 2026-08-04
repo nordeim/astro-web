@@ -1,4 +1,6 @@
 ---
+import HeroWave from './HeroWave.astro';
+
 const clients = [
   { name: 'Elev8 Fun', href: '/work/elev8-fun/' },
   { name: 'Marker 48', href: '/work/marker-48/' },
@@ -6,7 +8,7 @@ const clients = [
 ];
 ---
 
-<section class="hero" style="min-height: 720px; padding: 32px 0 0;">
+<section class="hero" style="min-height: 720px; padding: 32px 0 0; position: relative;">
   <div class="container">
     <h1 class="font-[var(--font-poppins)] font-bold h1 text-balance" style="max-width: 14ch;">
       Central Florida's Award Winning Creative Agency.
@@ -28,4 +30,29 @@ const clients = [
       ))}
     </div>
   </div>
+
+  {/* Wave-gradient divider at the bottom of the hero — matches original kelp.agency.
+      Inline SVG (not an <img>) so it inherits color management and scales crisply.
+      aria-hidden because it is decorative. */}
+  <div class="hero-wave-container" aria-hidden="true">
+    <HeroWave />
+  </div>
 </section>
+
+<style>
+  .hero-wave-container {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    line-height: 0;
+    pointer-events: none;
+  }
+
+  .hero-wave-container svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>
