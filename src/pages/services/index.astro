@@ -3,17 +3,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Section from '../../components/Section.astro';
 import { getCollection } from 'astro:content';
-
-const desiredOrder = [
-  'branding-design',
-  'websites',
-  'marketing-strategy',
-  'media',
-  'ongoing-support',
-];
+import { SERVICE_ORDER } from '../../lib/service-order';
 
 const services = await getCollection('services');
-const categories = desiredOrder
+const categories = SERVICE_ORDER
   .map((slug) => services.find((s) => s.id === slug))
   .filter((s) => s !== undefined);
 ---

@@ -1,20 +1,13 @@
 ---
 import Section from '../Section.astro';
 import { getCollection } from 'astro:content';
+import { SERVICE_ORDER } from '../../lib/service-order';
 
 // Single source of truth: src/content/services/*.md
-// Stable display order is defined here (NOT in the markdown) so that
-// reordering on the homepage does not require renaming content files.
-const desiredOrder = [
-  'branding-design',
-  'websites',
-  'marketing-strategy',
-  'media',
-  'ongoing-support',
-];
-
+// Display order is shared with src/pages/services/index.astro via
+// src/lib/service-order.ts — edit that file to reorder both surfaces.
 const services = await getCollection('services');
-const serviceCategories = desiredOrder
+const serviceCategories = SERVICE_ORDER
   .map((slug) => services.find((s) => s.id === slug))
   .filter((s) => s !== undefined);
 ---
