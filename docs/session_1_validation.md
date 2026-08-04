@@ -55,3 +55,38 @@ Discrepancies: None material
 - skills/ shows as deleted in git status — environmental (gitignored symlink per AGENTS.md), not a code change.
 Conclusion: All 13 commits described in docs/session_1.md are faithfully reflected in the current codebase. No drift, no missing fixes, no regressions. The TDD harness (link-checker + content-validator + dep guard) confirms a fully GREEN state.
 
+---
+
+# Todos
+[✓] Edit 1: Update mobile menu section (§7) focus management
+[✓] Edit 2: Append 4 anti-patterns to §15
+[✓] Edit 3: Insert new prebuild dep guard section
+[✓] Edit 4: Insert new JSON-LD section
+[✓] Edit 5: Add 4 troubleshooting entries
+[✓] Edit 6: Add post-build checklist items
+[✓] Edit 7: Renumber headings + update changelog
+[✓] Mirror canonical to ~/.config/kilo path
+[✓] Verify parity + heading sequence + fence pairs
+DELIVER — Summary
+Updated astro-7-patterns/SKILL.md with all lessons from remediation rounds 2–4 of the kelp.agency clone build. 1344 → 1772 lines (+428), version 1.0 → 1.4.
+What was added (by section, with the lesson source)
+§	Edit	Round	Lesson captured
+§7	Expanded	R3	Mobile-menu focus management (requestAnimationFrame move-on-open, toggle.focus() return-on-close), --header-height CSS-variable extraction, checklist 8→11 items, "don't trust a working widget without ARIA" callout
+§15	+4 anti-patterns	R3+R4	(a) trusting a "working" widget without ARIA, (b) duplicating display-order logic → src/lib/, (c) CRITICAL: fabricating business identity for a "demo" clone (fabricated quote + real company = misattribution liability), (d) empty-state already existed
+§16	New section	R2	Pre-build dependency guard — fail-fast before Vite. Real verify-deps.mjs, package.json prebuild/precheck wiring, the "stale node_modules" scenario, AI-assisted-workflow rationale, keep-dep-list-in-sync gotcha, RED→GREEN TDD evidence
+§17	New section	R4	JSON-LD structured data — set:html + JSON.stringify pattern. Real Organization+WebSite+WebPage+BreadcrumbList code from BaseLayout.astro, the 3 things to get right (set:html+JSON.stringify, is:inline, @id cross-refs), the XSS-safety boundary
+§18	+4 troubleshooting entries	R2+R4	(a) Cannot find module Vite stack trace = stale node_modules, (b) og:image 404, (c) title-tag drift, (d) fabricated testimonials
+§20	+7 checklist items	R2+R3+R4	OG-image 200, JSON-LD parseable, title convention, no fabricated info, dep guard ran, mobile-menu focus, single-sourced order
+§21	Cross-References	R4	Ethics note pairing the fabricated-content anti-pattern with verification-and-review-protocol's Iron Law
+§22	Changelog	all	3 dated round entries (R2, R3, R4) summarizing the additions
+frontmatter	version: 1.4	—	bump
+Renumbering
+Sections shifted: old §15→§15 (anti-patterns, +4 entries), new §16 (dep guard), new §17 (JSON-LD), old §16 Troubleshooting→§18, old §17 Pre-Build Checklist→§19, old §18 Post-Build→§20, old §19 Cross-Ref→§21, old §20 Changelog→§22. Verified 1–22 contiguous in final grep. Code-fence balance even (126 fence-lines). All 3 copies byte-identical.
+Targets synced (all three identical, confirmed via cmp)
+- /home/pete/.pi/agent/skills/astro-7-patterns/SKILL.md (canonical, edited)
+- /home/pete/.config/kilo/skills/astro-7-patterns/SKILL.md (hardlink to the same inode — auto-synced)
+- /Home1/project/astro-web/skills/astro-7-patterns/SKILL.md (repo copy, manually synced to match)
+One pre-existing repo discrepancy surfaced
+AGENTS.md states skills/ should be "a symlink to ~/.pi/agent/skills and is gitignored… do not edit or commit it." In this checkout, skills/ is a tracked directory (committed, not gitignored, not a symlink). I synced the repo file to match per your "both paths" choice, but this is a pre-existing AGENTS.md-vs-reality mismatch worth flagging for resolution separately.
+Verification gates run
+The SKILL.md edit is documentation only — no code change, so npm run check/build/check:links/check:content were not re-run (they wouldn't be affected). Doc-level verification: heading sequence ✓, fence balance ✓, every keyword lesson present ✓, parity across all 3 paths ✓.
