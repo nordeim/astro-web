@@ -716,6 +716,16 @@ Before considering the clone complete, verify each of these against the live `ke
 - [x] How We Work section ends with "Ready to get started?" CTA link to `/contact/` (matches original)
 - [x] Service display order shared via `src/lib/service-order.ts` (DRY — no duplicated `desiredOrder` arrays)
 
+### Added 2026-08-04 (round 4 — content fidelity + brand motifs + SEO)
+
+- [x] Contact page shows real Kelp info: `info@kelp.agency`, `352-325-7688`, `P.O. Box 116, Brooksville, FL 34605` (no fabricated address/phone)
+- [x] Testimonials use clearly-fictional placeholder names (Jane Doe, John Smith, Alex Sample) — not fabricated names attached to real client companies
+- [x] About page team uses fictional placeholders with an explicit note that they are not real Kelp staff
+- [x] Hero has wave-gradient SVG divider (`#bef3f4 → #80e6e9`) matching original's `class="hero-water"`
+- [x] Testimonials have custom leaf-shaped quotation-mark SVG (seafoam green `#a1e39a`) matching original
+- [x] Title tags follow the original's convention: `"Kelp Creative Agency"`, `"About Kelp"`, `"Contact Kelp"`, `"Kelp's Services"`, `"Our Work"`, `"Kelp Client List"`, `"Kelp's Preferred Platforms"`, `"Kelp Resources"`
+- [x] JSON-LD structured data present on every page: `Organization`, `WebSite`, `WebPage`, `BreadcrumbList` (skipped on homepage)
+
 ---
 
-*End of design template. All values verified via direct measurement of `https://www.kelp.agency/` on 2026-08-03. Post-remediation verification performed on 2026-08-04 — see `docs/audit/AUDIT_FINDINGS.md`, `docs/audit/REMEDIATION_PLAN.md`, `docs/audit/REMEDIATION_PLAN_ROUND2.md`, and `docs/audit/REMEDIATION_PLAN_ROUND3.md`.*
+*End of design template. All values verified via direct measurement of `https://www.kelp.agency/` on 2026-08-03. Post-remediation verification performed on 2026-08-04 — see `docs/audit/AUDIT_FINDINGS.md`, `docs/audit/REMEDIATION_PLAN.md`, `docs/audit/REMEDIATION_PLAN_ROUND2.md`, `docs/audit/REMEDIATION_PLAN_ROUND3.md`, and `docs/audit/REMEDIATION_PLAN_ROUND4.md`.*
