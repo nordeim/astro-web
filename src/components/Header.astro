@@ -117,12 +117,15 @@ const currentPath = Astro.url.pathname;
     </div>
   </div>
 
-  {/* Mobile menu overlay */}
+  {/* Mobile menu overlay — dialog semantics per astro-7-patterns skill §7 */}
   <div
     id="mobile-menu"
     class="hidden md:hidden fixed inset-0 bg-paper z-50 flex flex-col p-6 overflow-y-auto"
     style="top: var(--header-height);"
     data-mobile-menu
+    role="dialog"
+    aria-modal="true"
+    aria-label="Site navigation"
   >
     <nav class="flex flex-col gap-6" aria-label="Mobile">
       {navItems.map((item) => (
@@ -140,8 +143,8 @@ const currentPath = Astro.url.pathname;
 
 <script>
   // === Mobile menu toggle ===
-  const toggle = document.querySelector('[data-mobile-menu-toggle]');
-  const menu = document.querySelector('[data-mobile-menu]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
 
   if (toggle && menu) {
     const closeMenu = () => {
@@ -149,6 +152,8 @@ const currentPath = Astro.url.pathname;
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', 'Open menu');
       document.body.style.overflow = '';
+      // Return focus to the toggle button so keyboard users aren't stranded
+      toggle.focus();
     };
 
     const openMenu = () => {
@@ -156,6 +161,13 @@ const currentPath = Astro.url.pathname;
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close menu');
       document.body.style.overflow = 'hidden';
+      // Move focus to the first focusable link inside the menu.
+      // requestAnimationFrame ensures the menu is visible in the layout
+      // before we try to focus it (the `hidden` class was just removed).
+      requestAnimationFrame(() => {
+        const firstLink = menu.querySelector<HTMLAnchorElement>('a');
+        if (firstLink) firstLink.focus();
+      });
     };
 
     toggle.addEventListener('click', () => {
