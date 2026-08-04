@@ -8,62 +8,59 @@ up to date, audited 305 packages in 1s
   run `npm fund` for details
 
 found 0 vulnerabilities
-npm warn install-scripts 1 package had install scripts blocked because they are not covered by allowScripts:
-npm warn install-scripts   esbuild@0.28.1 (postinstall: node install.js)
-npm warn install-scripts
-npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
 (venv) pete@pop-os:/Home1/project/astro-web
 $ npm run build
 npm notice run kelp-clone@1.0.0 prebuild
 npm notice run node scripts/verify-deps.mjs
 npm notice run kelp-clone@1.0.0 build
 npm notice run astro build
-09:03:28 [content] Syncing content
-09:03:28 [content] Synced content
-09:03:28 [types] Generated 750ms
-09:03:28 [build] output: "static"
-09:03:28 [build] mode: "static"
-09:03:28 [build] directory: /Home1/project/astro-web/dist/
-09:03:28 [build] Collecting build info...
-09:03:28 [build] ✓ Completed in 821ms.
-09:03:28 [build] Building static entrypoints...
-09:03:28 [assets] Copying fonts (5 files)...
-09:03:29 [vite] ✓ built in 552ms
-09:03:29 [vite] ✓ built in 93ms
-09:03:29 [build] Rearranging server assets...
+12:04:55 [content] Syncing content
+12:04:55 [content] Synced content
+12:04:55 [types] Generated 823ms
+12:04:55 [build] output: "static"
+12:04:55 [build] mode: "static"
+12:04:55 [build] directory: /Home1/project/astro-web/dist/
+12:04:55 [build] Collecting build info...
+12:04:55 [build] ✓ Completed in 911ms.
+12:04:55 [build] Building static entrypoints...
+12:04:56 [assets] Copying fonts (5 files)...
+12:04:56 [vite] ✓ built in 623ms
+12:04:56 [vite] ✓ built in 102ms
+12:04:56 [build] Rearranging server assets...
 
  generating static routes 
-09:03:29   ├─ /404.html (+23ms) 
-09:03:29   ├─ /about/index.html (+7ms) 
-09:03:29   ├─ /contact/index.html (+5ms) 
-09:03:29   ├─ /platforms/index.html (+6ms) 
-09:03:29   ├─ /resources/manipulate-hubspot-forms-javascript/index.html (+6ms) 
-09:03:29   ├─ /resources/partners-vs-pirates/index.html (+4ms) 
-09:03:29   ├─ /resources/simple-hubdb-pagination/index.html (+3ms) 
-09:03:29   ├─ /resources/index.html (+6ms) 
-09:03:29   ├─ /services/index.html (+7ms) 
-09:03:29   ├─ /work/clients/index.html (+5ms) 
-09:03:29   ├─ /work/beverlin-hills-quality-goods/index.html (+3ms) 
-09:03:29   ├─ /work/croom-brewery/index.html (+2ms) 
-09:03:29   ├─ /work/deals-in-dirt/index.html (+2ms) 
-09:03:29   ├─ /work/elev8-fun/index.html (+2ms) 
-09:03:29   ├─ /work/harts-meat-market/index.html (+4ms) 
-09:03:29   ├─ /work/marker-48/index.html (+4ms) 
-09:03:29   ├─ /work/mountaineer-coffee/index.html (+2ms) 
-09:03:29   ├─ /work/spring-water-spirits/index.html (+3ms) 
-09:03:29   ├─ /work/unprofitable/index.html (+3ms) 
-09:03:29   ├─ /work/index.html (+4ms) 
-09:03:29   ├─ /index.html (+9ms) 
-09:03:29 ✓ Completed in 146ms.
+12:04:56   ├─ /404.html (+27ms) 
+12:04:56   ├─ /about/index.html (+9ms) 
+12:04:56   ├─ /contact/index.html (+7ms) 
+12:04:56   ├─ /platforms/index.html (+6ms) 
+12:04:56   ├─ /resources/manipulate-hubspot-forms-javascript/index.html (+7ms) 
+12:04:56   ├─ /resources/partners-vs-pirates/index.html (+4ms) 
+12:04:56   ├─ /resources/simple-hubdb-pagination/index.html (+4ms) 
+12:04:56   ├─ /resources/index.html (+6ms) 
+12:04:56   ├─ /services/index.html (+8ms) 
+12:04:56   ├─ /work/clients/index.html (+12ms) 
+12:04:56   ├─ /work/beverlin-hills-quality-goods/index.html (+4ms) 
+12:04:56   ├─ /work/croom-brewery/index.html (+3ms) 
+12:04:56   ├─ /work/deals-in-dirt/index.html (+3ms) 
+12:04:56   ├─ /work/elev8-fun/index.html (+4ms) 
+12:04:56   ├─ /work/harts-meat-market/index.html (+3ms) 
+12:04:56   ├─ /work/marker-48/index.html (+3ms) 
+12:04:56   ├─ /work/mountaineer-coffee/index.html (+2ms) 
+12:04:56   ├─ /work/spring-water-spirits/index.html (+2ms) 
+12:04:56   ├─ /work/unprofitable/index.html (+2ms) 
+12:04:56   ├─ /work/index.html (+7ms) 
+12:04:56   ├─ /index.html (+9ms) 
+12:04:56 ✓ Completed in 171ms.
 
-09:03:29 [build] ✓ Completed in 854ms.
-09:03:29 [@astrojs/sitemap] `sitemap-index.xml` created at `dist`
-09:03:29 [build] 21 page(s) built in 1.70s
-09:03:29 [build] Complete!
+12:04:56 [build] ✓ Completed in 965ms.
+12:04:56 [@astrojs/sitemap] `sitemap-index.xml` created at `dist`
+12:04:56 [build] 21 page(s) built in 1.90s
+12:04:56 [build] Complete!
 (venv) pete@pop-os:/Home1/project/astro-web
 $ npm run preview
 npm notice run kelp-clone@1.0.0 preview
 npm notice run astro preview
- astro  v7.1.6 ready in 44 ms
+ astro  v7.1.6 ready in 49 ms
 ┃ Local    http://localhost:4321/
 ┃ Network  use --host to expose
+

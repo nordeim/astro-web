@@ -1,3 +1,7 @@
+please meticulously plan to review and update `skills/astro-7-patterns/SKILL.md` with all the lessons and experiences gained, issues/bugs encountered and their resolutions, troubleshooting tips, coding patterns and anti-patterns learnt in these remediation rounds.
+
+---
+
 Please help me to extract the landing page at `https://scandi-haven-shop.lovable.app/` into a single self-contained HTML file with inline Javascript and CSS. Then meticulously base on the live site create a detailed PRD (Project Requirements Document) to build a fully functioning and full featured production ready website.
 
 please `git push` the two files to my GitHub repo at `https://github.com/nordeim/maison`
