@@ -708,6 +708,14 @@ Before considering the clone complete, verify each of these against the live `ke
 - [x] `npm run check:links` reports 0 broken internal links
 - [x] `npm run check:content` reports 0 invalid frontmatter entries
 
+### Added 2026-08-04 (round 3 — skills compliance + design fidelity)
+
+- [x] Mobile menu has `role="dialog"`, `aria-modal="true"`, `aria-label="Site navigation"` (per `astro-7-patterns` skill §7)
+- [x] Mobile menu focus management: opening moves focus to first link; closing returns focus to toggle button
+- [x] Footer has 6 columns including "Ready to get started?" CTA (matches original kelp.agency)
+- [x] How We Work section ends with "Ready to get started?" CTA link to `/contact/` (matches original)
+- [x] Service display order shared via `src/lib/service-order.ts` (DRY — no duplicated `desiredOrder` arrays)
+
 ---
 
-*End of design template. All values verified via direct measurement of `https://www.kelp.agency/` on 2026-08-03. Post-remediation verification performed on 2026-08-04 — see `docs/audit/AUDIT_FINDINGS.md` and `docs/audit/REMEDIATION_PLAN.md`.*
+*End of design template. All values verified via direct measurement of `https://www.kelp.agency/` on 2026-08-03. Post-remediation verification performed on 2026-08-04 — see `docs/audit/AUDIT_FINDINGS.md`, `docs/audit/REMEDIATION_PLAN.md`, `docs/audit/REMEDIATION_PLAN_ROUND2.md`, and `docs/audit/REMEDIATION_PLAN_ROUND3.md`.*

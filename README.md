@@ -95,7 +95,8 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 │   └── 📂 audit/                    # 2026-08-04 code audit + remediation plans
 │       ├── 📄 AUDIT_FINDINGS.md      # Round 1: 26 findings (4 Critical, 8 High, 6 Medium, 5 Low, 3 Info)
 │       ├── 📄 REMEDIATION_PLAN.md    # Round 1: phase-by-phase fix plan + TDD strategy
-│       └── 📄 REMEDIATION_PLAN_ROUND2.md  # Round 2: build-error root cause + dep guard + OG image
+│       ├── 📄 REMEDIATION_PLAN_ROUND2.md  # Round 2: build-error root cause + dep guard + OG image
+│       └── 📄 REMEDIATION_PLAN_ROUND3.md  # Round 3: skills compliance + design fidelity
 │
 ├── 📂 public/
 │   ├── 📄 favicon.svg                # Kelp "K" wordmark
@@ -132,6 +133,9 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
     │   └── 📂 testimonials/           # 3 testimonials (.yaml)
     ├── 📄 content.config.ts          # Content Layer collections + Zod schemas
     ├── 📄 env.d.ts                   # Ambient types
+    │
+    ├── 📂 lib/                       # Shared utilities
+    │   └── 📄 service-order.ts        # SERVICE_ORDER constant — shared display order for services
     │
     ├── 📂 layouts/
     │   └── 📄 BaseLayout.astro       # HTML shell + ClientRouter + scroll-reveal + SEO meta (OG, Twitter, canonical, sitemap)
@@ -290,3 +294,10 @@ Proprietary. This is a clone built for demonstration purposes. The original kelp
   - **Default OG image (B2):** Created `public/og-default.png` (1200×630, 23 KB) via `scripts/generate-og-image.py` (PIL). The OG image meta tag (wired in round-1 L1) now resolves to a real file instead of 404. The image is a functional placeholder — kelp-green accent bar, "Kelp" wordmark in serif, tagline below, on an ink background. The maintainer can replace it with a designed asset at the same dimensions.
   - **Documentation (B3):** Added an "After pulling new commits" note to README Quick Start; documented the `prebuild`/`precheck` hooks in README, AGENTS.md, and CLAUDE.md. Added `docs/audit/REMEDIATION_PLAN_ROUND2.md` with root-cause analysis and TDD evidence.
   - **Result:** `rm -rf node_modules dist && npm run build` now fails fast with a helpful message (verified). `npm install && npm run build` succeeds — 21 pages, sitemap, 0 broken links, 0 content errors, 0 type errors.
+- **2026-08-04 (round 3)** — Skills compliance + design fidelity. Triggered by a post-deployment E2E test of the live site against the original `kelp.agency` plus a compliance review against the `astro-7` and `astro-7-patterns` skills. Fixes:
+  - **Mobile menu dialog semantics (R3-1):** Added `role="dialog"`, `aria-modal="true"`, and `aria-label="Site navigation"` to the mobile menu container, per `astro-7-patterns` skill §7 checklist item 4. Screen readers now announce the menu as a dialog with the rest of the page inert.
+  - **Mobile menu focus management (R3-2):** `openMenu()` now moves focus to the menu's first link via `requestAnimationFrame` (so the menu is visible before focus moves). `closeMenu()` returns focus to the toggle button. Verified via `agent-browser`: open → focus on Services link; Escape → focus on hamburger button.
+  - **Footer "Ready to get started?" CTA column (R3-3):** Added a 6th footer column matching the original kelp.agency — H3 + description + "Schedule a Meeting" button. Changed grid from `lg:grid-cols-5` to `lg:grid-cols-6`. The `FooterColumn` interface now supports an `isCTA` flag for CTA-style columns.
+  - **How We Work "Ready to get started?" link (R3-4):** Added a CTA link at the end of the 5-step process, matching the original kelp.agency's How We Work section. Links to `/contact/` with a kelp-green underline.
+  - **DRY `desiredOrder` (R3-5):** Extracted the service category display order from duplicated inline arrays in `Services.astro` and `services/index.astro` into a shared `src/lib/service-order.ts` module exporting `SERVICE_ORDER`. Both consumers now import from the same source.
+  - **Result:** `npm run check` (0/0/0), `npm run build` (21 pages), `npm run check:links` (0 broken), `npm run check:content` (0 errors). E2E verified via `agent-browser` against local preview: footer has 6 columns, HowWeWork has CTA link, mobile menu has dialog ARIA + focus management.

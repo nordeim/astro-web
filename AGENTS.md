@@ -38,7 +38,9 @@ This prevents the confusing Vite stack trace that would otherwise surface when `
 - **`src/scripts/` exists but is empty.** Project-level scripts (link-checker, content validator) live in `scripts/` at the repo root, NOT in `src/scripts/`. Client JS is inlined in components, not imported from `src/scripts/`.
 - **`astro.config.mjs` `site` is `https://astro.jesspete.shop`.** This is the deployed production URL. Canonical URLs, OG tags, and the sitemap all derive from it. Do not change it back to the placeholder.
 - **Header height is `--header-height: 72px`** (defined in `global.css`). The mobile menu overlay uses `top: var(--header-height)`. If you change header padding, logo size, or anything else affecting header height, update the variable.
-- **Services display order is defined in code, not in markdown.** `Services.astro` and `services/index.astro` both have a `desiredOrder` array of slugs (`branding-design`, `websites`, `marketing-strategy`, `media`, `ongoing-support`). To reorder, edit the array — do not rename content files.
+- **Services display order is defined in code, not in markdown.** Both `Services.astro` and `services/index.astro` import `SERVICE_ORDER` from `src/lib/service-order.ts` — a shared module so the homepage and the services page stay in sync. To reorder categories on both surfaces, edit the array in `src/lib/service-order.ts`; do not rename content files.
+
+- **Mobile menu follows the `astro-7-patterns` skill §7 pattern.** The menu container has `role="dialog"`, `aria-modal="true"`, `aria-label="Site navigation"`. `openMenu()` moves focus to the first menu link via `requestAnimationFrame`; `closeMenu()` returns focus to the toggle button. A full focus trap is intentionally NOT implemented (the skill says it's optional for 5-7 link menus); do not add one without reading the skill's guidance.
 
 ## Layout order (apply before coding)
 
