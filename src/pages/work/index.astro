@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Section from '../../components/Section.astro';
+import CaseStudyCover from '../../components/CaseStudyCover.astro';
 import { getCollection } from 'astro:content';
 
 const caseStudies = await getCollection('caseStudies');
@@ -25,10 +26,8 @@ const sortedCaseStudies = caseStudies.sort(
       {sortedCaseStudies.map((cs, i) => (
         <article data-reveal style={i % 2 === 1 ? 'margin-top: 0;' : ''}>
           <a href={`/work/${cs.id}/`} class="block no-underline group">
-            <div
-              class="aspect-[4/3] w-full mb-6 transition-opacity group-hover:opacity-90"
-              style="background: linear-gradient(135deg, var(--color-teal), var(--color-seafoam));"
-            >
+            <div class="aspect-[4/3] w-full mb-6 transition-opacity group-hover:opacity-90 overflow-hidden">
+              <CaseStudyCover client={cs.data.client} title={cs.data.title} category={cs.data.category} slug={cs.id} />
             </div>
             <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.75rem; letter-spacing: 0.1em;">
               {cs.data.category}

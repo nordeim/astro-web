@@ -1,5 +1,6 @@
 ---
 import Section from '../Section.astro';
+import ArticleCover from '../ArticleCover.astro';
 import { getCollection } from 'astro:content';
 
 // Single source of truth: src/content/articles/*.md
@@ -16,6 +17,13 @@ const articles = (await getCollection('articles'))
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-reveal>
     {articles.map((article) => (
       <article>
+        <a
+          href={`/resources/${article.id}/`}
+          class="block aspect-[351/250] bg-mist overflow-hidden mb-4"
+          aria-label={`Read: ${article.data.title}`}
+        >
+          <ArticleCover title={article.data.title} category={article.data.category} slug={article.id} />
+        </a>
         <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.75rem; letter-spacing: 0.1em;">
           {article.data.category}
         </p>

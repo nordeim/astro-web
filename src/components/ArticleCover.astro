@@ -1,0 +1,154 @@
+---
+/**
+ * ArticleCover.astro — deterministic SVG cover art for article cards.
+ *
+ * Source: docs/audit/REMEDIATION_PLAN_ROUND5.md F6 (HIGH).
+ *
+ * Companion to CaseStudyCover.astro — same approach (deterministic SVG
+ * derived from a hash of the title), different dimensions (351×250 to
+ * match the original kelp.agency article thumbnail aspect ratio) and
+ * different iconography (article-focused: doc, code, list).
+ *
+ * Props:
+ *   title    — the article's `title` frontmatter field (used for hash + label)
+ *   category — the article's `category` frontmatter field (drives iconography)
+ *   slug     — optional, for the SVG <title> id
+ */
+
+interface Props {
+  title: string;
+  category: string;
+  slug?: string;
+}
+
+const { title, category, slug } = Astro.props;
+
+// === Deterministic hash → palette + composition ===
+function hash(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) + h) ^ s.charCodeAt(i);
+  }
+  return Math.abs(h);
+}
+
+const h = hash(title);
+
+const palette = [
+  { bg: '#f4f4f4', fg: '#0d1726', accent: '#42c634' }, // mist + ink + kelp
+  { bg: '#0d1726', fg: '#c5f5f6', accent: '#42c634' }, // ink + teal + kelp
+  { bg: '#0d1726', fg: '#f9a79c', accent: '#c5f5f6' }, // ink + coral + teal
+  { bg: '#f4f4f4', fg: '#0d1726', accent: '#f9a79c' }, // mist + ink + coral
+  { bg: '#0d1726', fg: '#a1e39a', accent: '#c5f5f6' }, // ink + seafoam + teal
+  { bg: '#0d1726', fg: '#42c634', accent: '#f9a79c' }, // ink + kelp + coral
+];
+
+const colors = palette[h % palette.length];
+const layout = h % 3;
+
+const letter = (title.trim()[0] || 'K').toUpperCase();
+
+function categoryGlyph(cat: string): string {
+  const c = cat.toLowerCase();
+  if (c.includes('hubspot') || c.includes('javascript') || c.includes('code')) {
+    // Code brackets — `{ }`
+    return '<path d="M8 4 Q4 4 4 8 V11 Q4 13 2 13 Q4 13 4 15 V18 Q4 22 8 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 4 Q20 4 20 8 V11 Q20 13 22 13 Q20 13 20 15 V18 Q20 22 16 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  if (c.includes('pagination') || c.includes('database') || c.includes('hubdb')) {
+    // Stacked database layers
+    return '<ellipse cx="12" cy="6" rx="8" ry="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 6 V12 Q4 14.5 12 14.5 Q20 14.5 20 12 V6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 12 V18 Q4 20.5 12 20.5 Q20 20.5 20 18 V12" fill="none" stroke="currentColor" stroke-width="1.5"/>';
+  }
+  if (c.includes('agency') || c.includes('business') || c.includes('partner')) {
+    // Two interlocking shapes — "partnership"
+    return '<circle cx="8" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>';
+  }
+  // Default — document with lines
+  return '<path d="M6 3 H14 L18 7 V21 H6 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 3 V7 H18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 12 H15 M9 15 H15 M9 18 H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>';
+}
+
+const glyph = categoryGlyph(category);
+const titleId = `article-cover-${slug || title.toLowerCase().replace(/\s+/g, '-').slice(0, 30)}`;
+---
+
+<svg
+  viewBox="0 0 351 250"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-labelledby={titleId}
+  preserveAspectRatio="xMidYMid slice"
+  style="display:block; width:100%; height:100%;"
+>
+  <title id={titleId}>{title} — article cover art</title>
+  <desc>Abstract branded cover for the article "{title}".</desc>
+
+  <rect width="351" height="250" fill={colors.bg} />
+
+  {layout === 0 && (
+    <>
+      <text
+        x="32"
+        y="180"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="180"
+        font-weight="600"
+        fill={colors.fg}
+        opacity="0.92"
+      >{letter}</text>
+      <g transform="translate(295, 24) scale(1)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+      <rect x="32" y="215" width="80" height="3" fill={colors.accent} />
+    </>
+  )}
+
+  {layout === 1 && (
+    <>
+      <text
+        x="175"
+        y="140"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="160"
+        font-weight="600"
+        fill={colors.fg}
+        text-anchor="middle"
+        opacity="0.92"
+      >{letter}</text>
+      <g transform="translate(32, 200)">
+        <rect x="0" y="-12" width="50" height="12" fill={colors.accent} opacity="0.9" />
+        <rect x="58" y="-20" width="50" height="20" fill={colors.accent} opacity="0.7" />
+        <rect x="116" y="-8" width="50" height="8" fill={colors.accent} opacity="0.85" />
+        <rect x="174" y="-16" width="50" height="16" fill={colors.accent} opacity="0.75" />
+        <rect x="232" y="-10" width="50" height="10" fill={colors.accent} opacity="0.9" />
+      </g>
+      <g transform="translate(295, 24) scale(1)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+    </>
+  )}
+
+  {layout === 2 && (
+    <>
+      <text
+        x="175"
+        y="225"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="240"
+        font-weight="600"
+        fill={colors.fg}
+        text-anchor="middle"
+        opacity="0.22"
+      >{letter}</text>
+      <g transform="translate(32, 32) scale(1.5)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+      <text
+        x="32"
+        y="215"
+        font-family="var(--font-poppins), sans-serif"
+        font-size="13"
+        font-weight="700"
+        fill={colors.fg}
+      >{category.toUpperCase()}</text>
+    </>
+  )}
+</svg>

@@ -1,5 +1,6 @@
 ---
 import Section from '../Section.astro';
+import CaseStudyCover from '../CaseStudyCover.astro';
 import { getCollection } from 'astro:content';
 
 // Single source of truth: src/content/case-studies/*.md
@@ -48,7 +49,9 @@ const caseStudies = (await getCollection('caseStudies')).sort(
                 <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
-            <div class="aspect-[4/3] bg-mist" style="background: linear-gradient(135deg, var(--color-teal), var(--color-seafoam));"></div>
+            <div class="aspect-[4/3] bg-mist" aria-hidden="false">
+              <CaseStudyCover client={cs.data.client} title={cs.data.title} category={cs.data.category} slug={cs.id} />
+            </div>
           </div>
         </article>
       ))}

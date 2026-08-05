@@ -1,0 +1,226 @@
+---
+/**
+ * CaseStudyCover.astro — deterministic SVG cover art for case-study cards.
+ *
+ * Source: docs/audit/REMEDIATION_PLAN_ROUND5.md F6 (HIGH).
+ *
+ * The original kelp.agency uses real portfolio screenshots for each case
+ * study (SpringWater-01-02-scaled.png, etc.). The clone cannot legally
+ * reuse those copyrighted images, so this component generates a unique
+ * branded SVG cover per case study. The composition is deterministic —
+ * derived from a hash of the client name — so each cover is stable across
+ * builds but visually distinct from every other cover.
+ *
+ * Per astro-7 §A15: prefer `astro:assets` `<Image />` for local raster
+ * images. SVGs are an exception — they're vector, infinitely scalable,
+ * and don't need optimization. They inline directly into the HTML,
+ * adding zero network requests.
+ *
+ * Props:
+ *   client   — the case study's `client` frontmatter field (used for hash)
+ *   title    — the case study's `title` frontmatter field (rendered as text)
+ *   category — the case study's `category` frontmatter field (drives iconography)
+ */
+
+interface Props {
+  client: string;
+  title: string;
+  category: string;
+  /** Optional — slug used for the SVG <title> id, for a11y */
+  slug?: string;
+}
+
+const { client, title, category, slug } = Astro.props;
+
+// === Deterministic hash → palette + composition ===
+// djb2 string hash — stable across JS runtimes, no crypto needed.
+function hash(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) + h) ^ s.charCodeAt(i);
+  }
+  return Math.abs(h);
+}
+
+const h = hash(client);
+
+// Brand palette — derived from the design tokens in src/styles/global.css.
+// We pick 2 colors from this set deterministically per case study so each
+// cover uses the kelp.agency palette but in a unique combination.
+const palette = [
+  { bg: '#0d1726', fg: '#42c634', accent: '#c5f5f6' }, // ink + kelp + teal
+  { bg: '#0d1726', fg: '#f9a79c', accent: '#42c634' }, // ink + coral + kelp
+  { bg: '#0d1726', fg: '#c5f5f6', accent: '#a1e39a' }, // ink + teal + seafoam
+  { bg: '#f4f4f4', fg: '#0d1726', accent: '#42c634' }, // mist + ink + kelp
+  { bg: '#0d1726', fg: '#a1e39a', accent: '#f9a79c' }, // ink + seafoam + coral
+  { bg: '#0d1726', fg: '#42c634', accent: '#f9a79c' }, // ink + kelp + coral
+  { bg: '#f4f4f4', fg: '#0d1726', accent: '#f9a79c' }, // mist + ink + coral
+  { bg: '#0d1726', fg: '#c5f5f6', accent: '#f9a79c' }, // ink + teal + coral
+  { bg: '#0d1726', fg: '#f9a79c', accent: '#c5f5f6' }, // ink + coral + teal
+];
+
+const colors = palette[h % palette.length];
+
+// Geometric composition — pick 1 of 4 layouts deterministically.
+const layout = h % 4;
+
+// First letter of the client name — used as a focal typographic element.
+const letter = (client.trim()[0] || 'K').toUpperCase();
+
+// Category iconography — a small abstract glyph per category.
+// Drawn as inline SVG paths, scaled to fit a 24×24 box in the corner.
+function categoryGlyph(cat: string): string {
+  const c = cat.toLowerCase();
+  if (c.includes('brand')) {
+    // Concentric circles — "identity"
+    return '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>';
+  }
+  if (c.includes('web') || c.includes('ecommerce')) {
+    // Window with cursor — "digital"
+    return '<rect x="3" y="4" width="18" height="14" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 8 H21" stroke="currentColor" stroke-width="1.5"/><path d="M14 13 L17 16 L14 19" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  if (c.includes('print') || c.includes('signage')) {
+    // Stacked sheets — "print"
+    return '<rect x="5" y="5" width="11" height="14" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="11" height="14" fill="none" stroke="currentColor" stroke-width="1.5"/>';
+  }
+  if (c.includes('marketing') || c.includes('video') || c.includes('media')) {
+    // Play triangle in circle — "media"
+    return '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 8 L16 12 L10 16 Z" fill="currentColor"/>';
+  }
+  // Default — abstract dot grid
+  return '<circle cx="6" cy="6" r="1.5" fill="currentColor"/><circle cx="12" cy="6" r="1.5" fill="currentColor"/><circle cx="18" cy="6" r="1.5" fill="currentColor"/><circle cx="6" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18" cy="12" r="1.5" fill="currentColor"/><circle cx="6" cy="18" r="1.5" fill="currentColor"/><circle cx="12" cy="18" r="1.5" fill="currentColor"/><circle cx="18" cy="18" r="1.5" fill="currentColor"/>';
+}
+
+const glyph = categoryGlyph(category);
+const titleId = `cover-title-${slug || client.toLowerCase().replace(/\s+/g, '-')}`;
+
+// Layout 0: large letter on left, glyph top-right
+// Layout 1: large letter centered, abstract bars below
+// Layout 2: split — letter top, glyph bottom
+// Layout 3: letter as background watermark, glyph in foreground
+---
+
+<svg
+  viewBox="0 0 351 198"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-labelledby={`${titleId}`}
+  preserveAspectRatio="xMidYMid slice"
+  style="display:block; width:100%; height:100%;"
+>
+  <title id={titleId}>{client} — {category} cover art</title>
+  <desc>Abstract branded cover for the {title} case study.</desc>
+
+  {/* Background */}
+  <rect width="351" height="198" fill={colors.bg} />
+
+  {layout === 0 && (
+    <>
+      {/* Large letter, left-aligned, vertically centered */}
+      <text
+        x="32"
+        y="148"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="160"
+        font-weight="600"
+        fill={colors.fg}
+        opacity="0.95"
+      >{letter}</text>
+      {/* Category glyph, top-right */}
+      <g transform="translate(295, 24) scale(1)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+      {/* Bottom accent bar */}
+      <rect x="32" y="170" width="80" height="3" fill={colors.accent} />
+    </>
+  )}
+
+  {layout === 1 && (
+    <>
+      {/* Centered letter */}
+      <text
+        x="175"
+        y="120"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="140"
+        font-weight="600"
+        fill={colors.fg}
+        text-anchor="middle"
+        opacity="0.95"
+      >{letter}</text>
+      {/* Abstract bars below — 5 bars of varying heights */}
+      <g transform="translate(32, 160)">
+        <rect x="0" y="-12" width="50" height="12" fill={colors.accent} opacity="0.9" />
+        <rect x="58" y="-20" width="50" height="20" fill={colors.accent} opacity="0.7" />
+        <rect x="116" y="-8" width="50" height="8" fill={colors.accent} opacity="0.85" />
+        <rect x="174" y="-16" width="50" height="16" fill={colors.accent} opacity="0.75" />
+        <rect x="232" y="-10" width="50" height="10" fill={colors.accent} opacity="0.9" />
+      </g>
+      {/* Glyph top-right */}
+      <g transform="translate(295, 24) scale(1)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+    </>
+  )}
+
+  {layout === 2 && (
+    <>
+      {/* Letter top-left */}
+      <text
+        x="32"
+        y="100"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="120"
+        font-weight="600"
+        fill={colors.fg}
+        opacity="0.95"
+      >{letter}</text>
+      {/* Horizontal divider */}
+      <line x1="32" y1="120" x2="319" y2="120" stroke={colors.accent} stroke-width="1" opacity="0.6" />
+      {/* Glyph bottom-right */}
+      <g transform="translate(295, 140) scale(1)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+      {/* Client label bottom-left */}
+      <text
+        x="32"
+        y="170"
+        font-family="var(--font-poppins), sans-serif"
+        font-size="11"
+        font-weight="600"
+        fill={colors.fg}
+        opacity="0.7"
+        letter-spacing="2"
+      >{client.toUpperCase()}</text>
+    </>
+  )}
+
+  {layout === 3 && (
+    <>
+      {/* Letter as large watermark background */}
+      <text
+        x="175"
+        y="180"
+        font-family="var(--font-newsreader), Georgia, serif"
+        font-size="220"
+        font-weight="600"
+        fill={colors.fg}
+        text-anchor="middle"
+        opacity="0.25"
+      >{letter}</text>
+      {/* Foreground glyph, top-left */}
+      <g transform="translate(32, 32) scale(1.5)" style={`color: ${colors.accent}`}>
+        {glyph}
+      </g>
+      {/* Client name, bottom-left, on top of watermark */}
+      <text
+        x="32"
+        y="170"
+        font-family="var(--font-poppins), sans-serif"
+        font-size="14"
+        font-weight="700"
+        fill={colors.fg}
+      >{client}</text>
+    </>
+  )}
+</svg>
