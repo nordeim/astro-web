@@ -34,7 +34,11 @@ const SCHEMAS = {
   },
   services: {
     ext: '.md',
-    required: ['title', 'category', 'description'],
+    // 'anchor' is required by src/content.config.ts (z.string(), no .optional()).
+    // It MUST be in this required list or check:content will pass a service
+    // markdown file that's missing `anchor:` — only for `astro build` to
+    // fail later with a less-friendly Zod error. Round-5 F4 fix.
+    required: ['title', 'category', 'description', 'anchor'],
     optional: ['offerings'],
     types: { offerings: 'array' },
   },
