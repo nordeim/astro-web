@@ -1,3 +1,7 @@
+please meticulously review @AGENTS.md , @CLAUDE.md and @README.md to have a deep understanding of the project and its codebase design and architecture. next, meticulously plan to review and validate @docs/session_2.md and @docs/skill_diff_output.txt against the codebase to check for alignment
+
+---
+
 Based on your comparative analysis, please meticulously plan to create a remediation plan on how to improve the codebase for the clone website `https://astro.jesspete.shop/` using the attached skills as guidance.
 
 The GitHub repo for the clone codebase is at URL `https://github.com/nordeim/astro-web.git`
