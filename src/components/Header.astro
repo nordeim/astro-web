@@ -150,6 +150,14 @@ const currentPath = Astro.url.pathname;
   // `menu` once at script execution and only registered `closeMenu` on swap —
   // after the first navigation, the new hamburger button had no click
   // listener and the mobile menu became unresponsive (F1, round 5).
+  //
+  // Round 6 (R6-3): the Escape keydown listener was INSIDE initMobileMenu()
+  // and attached to `document` (which persists across swaps). After N swaps,
+  // N+1 Escape listeners accumulated on document — a memory leak with
+  // idempotent effect. Fix: moved the Escape listener to MODULE LEVEL
+  // (mirrors the F3 fix pattern for the dropdown outside-click). The handler
+  // re-queries the toggle/menu inside, so it always operates on the live
+  // elements.
   const initMobileMenu = () => {
     const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
     const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
@@ -187,13 +195,6 @@ const currentPath = Astro.url.pathname;
       else openMenu();
     });
 
-    // Close on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
-        closeMenu();
-      }
-    });
-
     // Close on link click inside the menu
     menu.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', closeMenu);
@@ -213,6 +214,26 @@ const currentPath = Astro.url.pathname;
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', 'Open menu');
       document.body.style.overflow = '';
+    }
+  });
+
+  // Escape keydown listener is registered ONCE at module level (NOT inside
+  // initMobileMenu). Round 5 had it inside initMobileMenu(), which meant
+  // every astro:after-swap added another identical listener to `document`
+  // — a memory leak with idempotent effect (R6-3, round 6). The handler
+  // body re-queries the DOM, so it works correctly against whatever
+  // toggle/menu elements are currently in the document.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
+    const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+    if (!toggle || !menu) return;
+    if (toggle.getAttribute('aria-expanded') === 'true') {
+      menu.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      document.body.style.overflow = '';
+      toggle.focus();
     }
   });
 
