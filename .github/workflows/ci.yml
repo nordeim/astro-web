@@ -1,0 +1,75 @@
+# Continuous Integration for the Kelp Agency Clone.
+#
+# Runs on every push to `main` and every pull_request targeting `main`.
+# Mirrors the local verification suite documented in AGENTS.md:
+#   - npm run check        (astro check — TypeScript + .astro diagnostics)
+#   - npm run build        (static build to dist/)
+#   - npm run check:links  (static internal-link checker — runs after build)
+#   - npm run check:content (frontmatter validator — runs any time)
+#
+# Playwright E2E tests (npm run test:e2e) are intentionally NOT included
+# here yet because the browser-binary download (~180 MB Chromium) doubles
+# the workflow runtime and the suite is regression-focused rather than
+# smoke-test-focused. A future round can add a separate `e2e:` job with
+# `actions/cache` for the Playwright browsers.
+#
+# Per astro-7 §3266 (Testing section) and astro-7-patterns §16 (pre-build
+# dep guard), this workflow relies on the `prebuild` and `precheck` npm
+# lifecycle hooks to verify config-level dependencies before `astro build`
+# and `astro check` run.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same ref — saves CI minutes when a
+# contributor pushes multiple commits to a PR in quick succession.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: check + build + links + content
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # Astro 7 requires Node.js 22.12.0+
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Type-check (.astro + TypeScript)
+        run: npm run check
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Check internal links
+        run: npm run check:links
+
+      - name: Check content frontmatter
+        run: npm run check:content
+
+      - name: Upload build artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
