@@ -135,90 +135,103 @@ const jsonLdString = JSON.stringify(jsonLdGraph);
     {/* Scroll reveal + header headroom script */}
     <script>
       // === Scroll reveal via IntersectionObserver ===
-      // Wrapped in a function so it can be re-run on `astro:after-swap`.
       // Per astro-7-patterns §3, every DOM-querying script must re-init on
-      // swap or it stops working after the first navigation.
+      // `astro:after-swap`. Round 5 wrapped this in a function but did NOT
+      // disconnect the old observer — after N swaps, N+1 IntersectionObservers
+      // existed, each holding references to detached elements (R6-4, round 6).
+      // Fix: store the observer at module scope and disconnect before re-creating.
+      let revealObserver: IntersectionObserver | null = null;
       const initScrollReveal = () => {
+        // Disconnect the previous observer so it stops holding references
+        // to the now-detached [data-reveal] elements from the previous page.
+        if (revealObserver) {
+          revealObserver.disconnect();
+          revealObserver = null;
+        }
         const revealEls = document.querySelectorAll('[data-reveal]');
         if (revealEls.length === 0) return;
-        const observer = new IntersectionObserver(
+        revealObserver = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target);
+                revealObserver?.unobserve(entry.target);
               }
             });
           },
           { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
         );
-        revealEls.forEach((el) => observer.observe(el));
+        revealEls.forEach((el) => revealObserver!.observe(el));
       };
 
       // === Headroom behavior for sticky header ===
-      // Idempotent init: re-queries `.site-header` on every call so that
-      // the NEW header element (replaced by View Transitions) gets a fresh
-      // scroll listener. The previous version captured `header` once at
-      // script execution and never re-queried — after the first navigation,
-      // the scroll listener kept mutating the now-detached OLD header, so
-      // the NEW header never received `is-scrolled` / `headroom--pinned` /
-      // `headroom--unpinned` classes (F2, round 5).
-      const initHeadroom = () => {
+      // Round 5 extracted initHeadroom() with an idempotency guard on the
+      // header element. But the guard is on the header (swapped), while the
+      // scroll listener is attached to window (persistent). After N swaps,
+      // N+1 scroll listeners accumulated on window, each mutating a different
+      // (mostly detached) header — a memory + CPU leak (R6-1, round 6).
+      //
+      // Fix: move the scroll listener to MODULE LEVEL (mirrors the F3 fix
+      // pattern for the dropdown outside-click). The listener re-queries
+      // `.site-header` inside the handler, so it always mutates the live
+      // header. The `lastScroll` state and `threshold` constant move to
+      // module scope. initHeadroom() is no longer needed — the module-level
+      // listener + an initial onScroll() call is sufficient.
+      let lastScroll = 0;
+      const headroomThreshold = 100; // px from top before headroom kicks in
+
+      const onScroll = () => {
         const header = document.querySelector<HTMLElement>('.site-header');
         if (!header) return;
-        // Idempotency guard — don't double-attach the scroll listener
-        if (header.dataset.headroomInit === 'true') return;
-        header.dataset.headroomInit = 'true';
 
-        let lastScroll = 0;
-        const threshold = 100; // px from top before headroom kicks in
+        const currentScroll = window.scrollY;
 
-        const onScroll = () => {
-          const currentScroll = window.scrollY;
+        // Toggle "is-scrolled" for shadow
+        if (currentScroll > 10) {
+          header.classList.add('is-scrolled');
+        } else {
+          header.classList.remove('is-scrolled');
+        }
 
-          // Toggle "is-scrolled" for shadow
-          if (currentScroll > 10) {
-            header.classList.add('is-scrolled');
+        // Headroom: hide on scroll down, show on scroll up
+        if (currentScroll > headroomThreshold) {
+          if (currentScroll > lastScroll) {
+            // scrolling down
+            header.classList.add('headroom--unpinned');
+            header.classList.remove('headroom--pinned');
           } else {
-            header.classList.remove('is-scrolled');
-          }
-
-          // Headroom: hide on scroll down, show on scroll up
-          if (currentScroll > threshold) {
-            if (currentScroll > lastScroll) {
-              // scrolling down
-              header.classList.add('headroom--unpinned');
-              header.classList.remove('headroom--pinned');
-            } else {
-              // scrolling up
-              header.classList.remove('headroom--unpinned');
-              header.classList.add('headroom--pinned');
-            }
-          } else {
-            // near top — always show
+            // scrolling up
             header.classList.remove('headroom--unpinned');
             header.classList.add('headroom--pinned');
           }
+        } else {
+          // near top — always show
+          header.classList.remove('headroom--unpinned');
+          header.classList.add('headroom--pinned');
+        }
 
-          lastScroll = currentScroll;
-        };
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
+        lastScroll = currentScroll;
       };
 
-      initScrollReveal();
-      initHeadroom();
+      // Attach the scroll listener ONCE at module level — window persists
+      // across View Transitions, so this listener survives all navigations.
+      // The handler re-queries `.site-header` on every event, so it always
+      // mutates the live header element.
+      window.addEventListener('scroll', onScroll, { passive: true });
+      // Call once to set the initial class state.
+      onScroll();
 
-      // === Re-run on Astro page transitions ===
-      // Both scroll-reveal and headroom must re-init, because View Transitions
-      // replace the entire <body> (including the header element and any
-      // [data-reveal] elements). Without re-init, the new elements have no
-      // listeners.
+      // Re-init scroll reveal on astro:after-swap (disconnects old observer,
+      // creates new one for the new [data-reveal] elements).
+      // No headroom re-init needed — the module-level listener handles it
+      // automatically (just call onScroll() once to reset the initial state).
       document.addEventListener('astro:after-swap', () => {
         initScrollReveal();
-        initHeadroom();
+        onScroll();
       });
+
+      // Initial init (on first page load).
+      initScrollReveal();
     </script>
   </body>
 </html>
