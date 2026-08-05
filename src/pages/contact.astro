@@ -49,7 +49,7 @@ import Section from '../components/Section.astro';
 
       <div class="lg:col-span-2" id="project-brief">
         <h2 class="font-[var(--font-poppins)] font-bold h3 mb-6">Project brief</h2>
-        <form method="POST" action="/contact/" class="space-y-6">
+        <form method="POST" action="/contact/" class="space-y-6" data-contact-form>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label for="name" class="block font-[var(--font-poppins)] font-semibold text-ink mb-2" style="font-size: 0.95rem;">
@@ -154,7 +154,78 @@ import Section from '../components/Section.astro';
             Prefer to talk? <a href="mailto:info@kelp.agency?subject=Discovery%20Call%20Request" class="text-ink underline hover:text-kelp">Schedule a 30-minute discovery call</a> instead.
           </p>
         </form>
+
+        {/* Feedback message — shown when the form is submitted. aria-live="polite"
+            so screen readers announce it. Initially hidden via the `hidden` class.
+            R6-11 (round 6): the form is a documented stub with no backend. The
+            previous behavior was a silent POST that re-rendered the page with
+            the form gone and no feedback — confusing UX. This message clearly
+            tells the user the form is a demo and directs them to the real
+            contact email. */}
+        <div
+          id="contact-form-feedback"
+          class="hidden mt-8 p-8 border-2 border-kelp bg-mist"
+          style="border-radius: 0;"
+          role="status"
+          aria-live="polite"
+          data-contact-form-feedback
+        >
+          <h3 class="font-[var(--font-poppins)] font-bold text-ink h3 mb-4">
+            Thanks for your project brief!
+          </h3>
+          <p class="font-[var(--font-newsreader)] text-ink" style="font-size: 1.125rem; line-height: 1.7;">
+            This form is part of a demo site and doesn't submit anywhere. To actually reach Kelp Creative Agency, please email <a href="mailto:info@kelp.agency" class="text-ink underline hover:text-kelp">info@kelp.agency</a> directly, or call <a href="tel:+13523257688" class="text-ink underline hover:text-kelp">352-325-7688</a>.
+          </p>
+          <p class="font-[var(--font-newsreader)] text-ink mt-4" style="font-size: 1rem; line-height: 1.6;">
+            We respond within one business day. For urgent inquiries, the discovery call link above is the fastest path.
+          </p>
+        </div>
       </div>
     </div>
   </Section>
 </BaseLayout>
+
+<script>
+  // === Contact form submit handler (R6-11, round 6) ===
+  // The form is a documented stub (AGENTS.md, CLAUDE.md, README.md all note
+  // "Stub HTML form with no backend"). The previous behavior was a POST to
+  // /contact/ (itself) which caused the static server to re-render the page
+  // — the form disappeared with no feedback, leaving the user confused about
+  // whether their submission was received.
+  //
+  // Fix: intercept the submit, preventDefault, hide the form, and show an
+  // aria-live="polite" message that clearly explains the form is a demo and
+  // directs the user to the real contact email/phone.
+  //
+  // Per the round-5 F1/F2/F3 lesson: the init function is idempotent (via
+  // dataset flag on the form) and re-runs on astro:after-swap so the handler
+  // survives View Transitions.
+  const initContactForm = () => {
+    const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+    const feedback = document.querySelector<HTMLElement>('[data-contact-form-feedback]');
+    if (!form || !feedback) return;
+    // Idempotency guard — don't double-attach the submit listener
+    if (form.dataset.contactFormInit === 'true') return;
+    form.dataset.contactFormInit = 'true';
+
+    form.addEventListener('submit', (e) => {
+      // Prevent the static POST that re-renders the page with no feedback.
+      e.preventDefault();
+      // Hide the form (so the user can't re-submit accidentally).
+      form.classList.add('hidden');
+      // Show the feedback message. aria-live="polite" on the div ensures
+      // screen readers announce the change.
+      feedback.classList.remove('hidden');
+      // Move focus to the feedback heading so keyboard users land on the
+      // confirmation.
+      const heading = feedback.querySelector('h3');
+      if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        heading.focus();
+      }
+    });
+  };
+
+  initContactForm();
+  document.addEventListener('astro:after-swap', initContactForm);
+</script>
