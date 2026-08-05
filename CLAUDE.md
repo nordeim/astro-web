@@ -4,7 +4,7 @@ IMPORTANT: File is read fresh for every conversation. Be brief and practical.
 
 # Kelp Agency Clone
 
-A production-ready static clone of [kelp.agency](https://www.kelp.agency/), a creative agency marketing site. Built with **Astro 7.1** (`output: 'static'`) and **Tailwind CSS 4** via `@tailwindcss/vite`. 17 static pages, zero JS by default, pixel-faithful to the original site's editorial design.
+A production-ready static clone of [kelp.agency](https://www.kelp.agency/), a creative agency marketing site. Built with **Astro 7.1** (`output: 'static'`) and **Tailwind CSS 4** via `@tailwindcss/vite`. 21 static pages, zero JS by default, pixel-faithful to the original site's editorial design.
 
 **Tech Stack**: Astro 7.1, Tailwind 4 (CSS-first `@theme`, no PostCSS, no JS config), TypeScript (strict), self-hosted fonts via Astro Fonts API.
 
@@ -16,13 +16,13 @@ A production-ready static clone of [kelp.agency](https://www.kelp.agency/), a cr
 2. **PLAN** — State the change, list affected files, confirm before coding.
 3. **VALIDATE** — Get explicit go-ahead.
 4. **IMPLEMENT** — Edit tokens in `src/styles/global.css`, components in `src/components/`, content in `src/content/`. Match existing patterns; do not introduce frameworks.
-5. **VERIFY** — Run `npm run check` (this is the **only** verification step — no tests/lint/format exist) and `npm run build` to confirm static output.
+5. **VERIFY** — Run `npm run check` (TypeScript + .astro diagnostics), `npm run build`, `npm run check:links` (after build), `npm run check:content`, and `npm run test:e2e` (Playwright). See the Testing Strategy section below for the full verification surface.
 6. **DELIVER** — Summarize the change; note any token or design-system deviation.
 
 ### Project-Specific Principles
 
 - **Design system is load-bearing.** Zero border-radius, serif (Newsreader) text inside buttons, alternating white→ink→mist section backgrounds, type-as-image hero. Deviating from `docs/kelp-design-template.md` breaks the look more than in a normal project.
-- **Zero JS by default.** Only `RecentWork.astro` (carousel), `Header.astro` (mobile menu), and the scroll-reveal script in `BaseLayout.astro` ship JS. Anything else must justify client JS.
+- **Zero JS by default.** Only `RecentWork.astro` (carousel), `Header.astro` (mobile menu + dropdown menus), and the scroll-reveal + headroom script in `BaseLayout.astro` ship JS. The contact page also ships a small inline script for the form-submit feedback (R6-11). Anything else must justify client JS.
 - **Content is data, not code.** Case studies, services, articles, and testimonials live as `.md`/`.yaml` in `src/content/`. Adding a file auto-publishes it — no registration step.
 
 ## Implementation Standards
@@ -31,7 +31,7 @@ A production-ready static clone of [kelp.agency](https://www.kelp.agency/), a cr
 - **File-based routing** in `src/pages/`. Dynamic routes use `getStaticPaths()` — only `work/[slug].astro` and `resources/[slug].astro` exist. `/work/clients/` is a static page.
 - **Layout order**: `Header.astro` → page body wrapped in `Section.astro` / `PageHeader.astro` → `Footer.astro`, all inside `BaseLayout.astro`. Homepage composes sections from `src/components/home/`.
 - **Content Layer API (single source of truth).** Collections defined in `src/content.config.ts` use `glob()` loader + `z` from `astro/zod` (not standalone Zod). All homepage sections now consume collections via `getCollection()` — `RecentWork.astro` (caseStudies), `Services.astro` + `services/index.astro` (services), `Testimonials.astro` (testimonials), `FeaturedArticles.astro` (articles). Do not re-introduce hardcoded data arrays.
-- **View Transitions** (`ClientRouter` in `BaseLayout.astro`). Any client-side init **must re-run on `astro:after-swap`** or it breaks on subsequent navigations. The Header dropdown script, mobile menu script, and carousel init script all follow this pattern.
+- **View Transitions** (`ClientRouter` in `BaseLayout.astro`). Any client-side init **must re-run on `astro:after-swap`** or it breaks on subsequent navigations. The Header dropdown script, mobile menu script, carousel init script, headroom + scroll-reveal script in `BaseLayout.astro`, and contact form script all follow this pattern. See `docs/audit/REMEDIATION_PLAN_ROUND5.md` (F1/F2/F3) and `docs/audit/REMEDIATION_PLAN_ROUND6.md` (R6-1/R6-3/R6-4) for the cautionary tales — listener leaks on persistent `window`/`document` objects are the #1 subtle bug class. The fix pattern: move persistent-object listeners to MODULE LEVEL (not inside the per-swap re-init function); re-query the DOM inside the handler.
 - **`src/scripts/` exists but is empty.** Project-level scripts (link-checker, content validator) live in `scripts/` at the repo root. Client JS is inlined in components.
 
 ### Tailwind 4
@@ -75,20 +75,30 @@ Requires **Node.js 22.12.0+** (Astro 7 constraint).
 - `npm run check:content` — project-level frontmatter validator. Reads `src/content/**/*.{md,yaml}` and asserts schema-critical fields are present, non-empty, and correctly typed. Catches malformed frontmatter before it ships.
 - `prebuild` / `precheck` dep guard (`scripts/verify-deps.mjs`) — runs automatically before `npm run build` and `npm run check`. Verifies `astro`, `@astrojs/sitemap`, `@tailwindcss/vite`, `@astrojs/check`, and `typescript` are installed. If any are missing, exits 1 with a "run `npm install`" message instead of a Vite stack trace.
 
-**E2E tests** (added round 5; run after any change to `Header.astro`, `BaseLayout.astro`, `RecentWork.astro`, or any inline `<script>`):
+**E2E tests** (added round 5; expanded round 6; run after any change to `Header.astro`, `BaseLayout.astro`, `RecentWork.astro`, `contact.astro`, or any inline `<script>`):
 
-- `npm run test:e2e` — Playwright E2E suite. 42 specs across desktop-chrome + mobile-chrome projects. Auto-builds + serves `dist/` via the `webServer` config in `playwright.config.ts`. Includes regression tests for:
+- `npm run test:e2e` — Playwright E2E suite. 61 specs across desktop-chrome + mobile-chrome projects. Auto-builds + serves `dist/` via the `webServer` config in `playwright.config.ts`. Includes regression tests for:
   - **F1:** mobile menu opens after a View Transition (`tests/mobile-menu.spec.ts`)
   - **F2:** headroom adds `is-scrolled` class after a View Transition (`tests/headroom.spec.ts`)
   - **F3:** dropdown outside-click works after multiple View Transitions (`tests/dropdowns.spec.ts`)
+  - **R6-1/R6-3/R6-4:** functional correctness after 5 View Transitions + no console errors (`tests/listener-leaks.spec.ts`)
+  - **R6-11:** contact form shows feedback message on submit instead of silent failure (`tests/contact-form.spec.ts`)
+  - **R6-8:** dropdown click-toggle, carousel ArrowLeft, headroom scroll-up→pinned cycle
   - Carousel init + re-init + keyboard a11y (`tests/carousel.spec.ts`)
   - Homepage smoke + JSON-LD parseability (`tests/homepage.spec.ts`)
 
 Run all three static checks + the E2E suite before claiming work is done. The scripts live in `scripts/` at the repo root and `tests/` at the repo root. There is no unit-test runner (Vitest) or linter/formatter configured — verification is intentionally minimal to keep the build fast.
 
+**CI workflow** (added round 5; expanded round 6):
+
+- `.github/workflows/ci.yml` runs two jobs in parallel on every push/PR to `main`:
+  - `verify` — checkout, setup-node 22, npm install, `npm run check`, `npm run build`, `npm run check:links`, `npm run check:content`. Uploads `dist/` artifact on `main`.
+  - `e2e` — checkout, setup-node 22, npm install, `actions/cache` for `~/.cache/playwright`, `npx playwright install --with-deps chromium`, `npm run test:e2e`. Uploads `playwright-report/` artifact on failure.
+- Both jobs must pass for merge (default GitHub branch protection).
+
 ## Git & Version Control
 
-- GitHub Actions CI workflow at `.github/workflows/ci.yml` runs `check` + `build` + `check:links` + `check:content` on every push to `main` and every PR. Playwright E2E tests are intentionally NOT run in CI yet (browser-binary download is heavy; defer to a future round with `actions/cache`).
+- GitHub Actions CI workflow at `.github/workflows/ci.yml` runs TWO jobs in parallel on every push to `main` and every PR: (1) `verify` job runs `check` + `build` + `check:links` + `check:content`; (2) `e2e` job runs the Playwright suite with `actions/cache` for the browser binary (added round 6, R6-2). Both jobs must pass for merge.
 - Follow Conventional Commits and atomic commits by default; verify with the user before merging or pushing.
 
 ## Error Handling & Debugging
@@ -117,7 +127,7 @@ Static, island-architecture site. Server renders HTML at build time; client JS i
 Adding a file to the matching dir auto-publishes it (case studies → `/work/`, articles → `/resources/`).
 
 ### Contact Form
-`/contact/` is a **stub HTML form with no backend**. Wiring (Formspree / Netlify Forms / Astro Actions) is unconfigured. Do not assume it submits anywhere.
+`/contact/` is a **stub HTML form with no backend**. Wiring (Formspree / Netlify Forms / Astro Actions) is unconfigured. As of round 6 (R6-11), the form submit is intercepted by an inline `<script>` that `preventDefault()`s and shows an `aria-live="polite"` feedback message directing the user to email `info@kelp.agency` directly. The UX is no longer a silent failure, but the form still doesn't actually submit anywhere.
 
 ### `skills/` Directory
 `skills` is a symlink to `~/.pi/agent/skills` and is **gitignored**. Treat it as not part of this repo; do not edit or commit it.

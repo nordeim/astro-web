@@ -11,7 +11,12 @@ Static marketing clone of kelp.agency built with **Astro 7.1** (`output: 'static
 - `npm run check` — `astro check` (TypeScript + `.astro` diagnostics). The `precheck` hook runs the same dep verification as `prebuild`. Run after any edit.
 - `npm run check:links` — static internal-link checker. Walks `dist/**/*.html` and verifies every internal `href`/`src` resolves to a file. Run AFTER `npm run build`. Exits non-zero on broken links.
 - `npm run check:content` — content frontmatter validator. Reads `src/content/**/*.{md,yaml}` and asserts schema-critical fields are present, non-empty, and correctly typed. Run any time. Exits non-zero on invalid frontmatter.
-- `npm run test:e2e` — Playwright E2E suite (added round 5). 42 specs across desktop + mobile viewports. Auto-builds + serves `dist/` via `webServer` config. Run any time. Exits non-zero on test failure. The suite includes regression tests for the View Transitions re-init bugs (F1, F2, F3) documented in `docs/audit/REMEDIATION_PLAN_ROUND5.md`.
+- `npm run test:e2e` — Playwright E2E suite (added round 5, expanded round 6). 61 specs across desktop + mobile viewports. Auto-builds + serves `dist/` via `webServer` config. Run any time. Exits non-zero on test failure. The suite includes regression tests for:
+  - View Transitions re-init bugs (F1, F2, F3 — round 5)
+  - Listener leaks on persistent objects (R6-1, R6-3, R6-4 — round 6)
+  - Contact form UX (R6-11 — round 6)
+  - Carousel keyboard nav, headroom scroll-up, dropdown click-toggle (R6-8 — round 6)
+  All documented in `docs/audit/REMEDIATION_PLAN_ROUND5.md` and `docs/audit/REMEDIATION_PLAN_ROUND6.md`.
 
 Requires Node.js 22.12.0+ (Astro 7 constraint).
 
@@ -63,7 +68,7 @@ This prevents the confusing Vite stack trace that would otherwise surface when `
 
 ## Contact form
 
-`/contact/` is a stub HTML form with no backend. Do not assume it submits anywhere — wiring (Formspree / Netlify Forms / Astro Actions) is unconfigured.
+`/contact/` is a stub HTML form with no backend. As of round 6 (R6-11), the form submit is intercepted by an inline `<script>` that `preventDefault()`s and shows an `aria-live="polite"` feedback message directing the user to email `info@kelp.agency` directly. Do not assume it submits anywhere — wiring (Formspree / Netlify Forms / Astro Actions) is still unconfigured, but the UX is no longer a silent failure.
 
 ## `skills/` directory
 

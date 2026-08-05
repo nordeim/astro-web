@@ -12,7 +12,7 @@
 
 > A production-ready clone of [kelp.agency](https://www.kelp.agency/) built with **Astro 7** and **Tailwind CSS 4**.
 
-> **Status:** ✅ Remediated (round 5) — 21 pages built, all internal links resolve (verified via `npm run check:links`), all content frontmatter valid (verified via `npm run check:content`), `npm run check` passes, `npm run test:e2e` passes 42 Playwright specs across desktop + mobile viewports. Verified against the kelp.agency live site on 2026-08-05; see `docs/audit/AUDIT_FINDINGS.md` for the audit and `docs/audit/REMEDIATION_PLAN.md` through `docs/audit/REMEDIATION_PLAN_ROUND5.md` for the fix logs.
+> **Status:** ✅ Remediated (round 6) — 21 pages built, all internal links resolve (verified via `npm run check:links`), all content frontmatter valid (verified via `npm run check:content`), `npm run check` passes, `npm run test:e2e` passes 61 Playwright specs across desktop + mobile viewports (incl. listener-leak + contact-form regression tests). Verified against the kelp.agency live site on 2026-08-05; see `docs/audit/AUDIT_FINDINGS.md` for the audit and `docs/audit/REMEDIATION_PLAN.md` through `docs/audit/REMEDIATION_PLAN_ROUND6.md` for the fix logs.
 >
 > **Live preview:** `npm run preview` after `npm install` → `http://localhost:4321/`.
 
@@ -20,7 +20,7 @@
 
 ## Overview
 
-Kelp Agency Clone is a pixel-faithful, static clone of the Kelp Creative Agency marketing site. It exists to demonstrate a modern, content-first static stack — Astro's Content Layer API, View Transitions, and Fonts API alongside Tailwind CSS 4's CSS-first `@theme` configuration — rather than to ship a product. The whole site ships zero JavaScript by default (only a carousel and mobile menu opt in), achieving editorial agency aesthetic with strong Core Web Vitals by construction. Content (case studies, services, articles, testimonials) lives as Markdown/YAML validated at build time, so adding a page is a file edit, not a code change.
+Kelp Agency Clone is a pixel-faithful, static clone of the Kelp Creative Agency marketing site. It exists to demonstrate a modern, content-first static stack — Astro's Content Layer API, View Transitions, and Fonts API alongside Tailwind CSS 4's CSS-first `@theme` configuration — rather than to ship a product. The whole site ships near-zero JavaScript by default (only a carousel, mobile menu, dropdown menus, scroll-reveal/headroom, and a small contact-form feedback script opt in), achieving editorial agency aesthetic with strong Core Web Vitals by construction. Content (case studies, services, articles, testimonials) lives as Markdown/YAML validated at build time, so adding a page is a file edit, not a code change.
 
 ## Key Features
 
@@ -68,11 +68,11 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 | Type-check | `npm run check` | `0 errors` / `0 hints` from `astro check` |
 | Link check | `npm run check:links` | `✓ All internal links resolve.` (after `npm run build`) |
 | Content check | `npm run check:content` | `✓ All content files valid.` |
-| E2E tests | `npm run test:e2e` | `42 passed` — Playwright specs across desktop + mobile viewports |
+| E2E tests | `npm run test:e2e` | `61 passed` — Playwright specs across desktop + mobile viewports (incl. listener-leak + contact-form regression tests) |
 | Build | `npm run build` | `dist/` populated; `Complete!` with route list + `sitemap-index.xml` |
 | Dev | `npm run dev` | Server reachable at `http://localhost:4321/`; homepage renders |
 
-> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. `npm run test:e2e` (Playwright) was added during the 2026-08-05 round-5 remediation to catch View Transitions re-init regressions that the static checks cannot detect. The `prebuild` and `precheck` hooks (see `scripts/verify-deps.mjs`) auto-verify config-level dependencies before `build`/`check` run.
+> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. `npm run test:e2e` (Playwright) was added during the 2026-08-05 round-5 remediation and expanded in round 6 to catch View Transitions re-init regressions (F1/F2/F3, R6-1/R6-3/R6-4) and the contact-form UX regression (R6-11) that the static checks cannot detect. The `prebuild` and `precheck` hooks (see `scripts/verify-deps.mjs`) auto-verify config-level dependencies before `build`/`check` run. The GitHub Actions CI workflow (`.github/workflows/ci.yml`) runs both a `verify` job (static checks) and an `e2e` job (Playwright) on every push/PR.
 
 ---
 
@@ -118,12 +118,14 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 │   ├── 📄 verify-deps.mjs            # prebuild/precheck guard — verifies config-level deps are installed
 │   └── 📄 generate-og-image.py       # Renders public/og-default.png via PIL (re-run if design changes)
 │
-├── 📂 tests/                        # Playwright E2E specs (added round 5)
+├── 📂 tests/                        # Playwright E2E specs (added round 5, expanded round 6)
 │   ├── 📄 homepage.spec.ts           # Homepage smoke + JSON-LD parseability
-│   ├── 📄 carousel.spec.ts           # Carousel init + re-init after View Transition
+│   ├── 📄 carousel.spec.ts           # Carousel init + re-init + ArrowLeft/Right keyboard (R6-8)
 │   ├── 📄 mobile-menu.spec.ts        # Mobile menu a11y + F1 regression test
-│   ├── 📄 headroom.spec.ts           # Headroom + scroll-reveal + F2 regression test
-│   └── 📄 dropdowns.spec.ts          # Desktop dropdowns + F3 regression test
+│   ├── 📄 headroom.spec.ts           # Headroom + scroll-reveal + F2 regression + scroll-up test (R6-8)
+│   ├── 📄 dropdowns.spec.ts          # Desktop dropdowns + F3 regression + click-toggle test (R6-8)
+│   ├── 📄 listener-leaks.spec.ts     # R6-1/R6-3/R6-4 functional regression tests (round 6)
+│   └── 📄 contact-form.spec.ts       # R6-11 contact form feedback regression test (round 6)
 │
 └── 📂 src/
     ├── 📂 components/
@@ -335,3 +337,15 @@ Proprietary. This is a clone built for demonstration purposes. The original kelp
   - **CI/CD (F9, Medium):** Added `.github/workflows/ci.yml` that runs on every push to `main` and every PR. Steps: checkout, setup-node 22, npm install, npm run check, npm run build, npm run check:links, npm run check:content. Uploads `dist/` artifact on `main`. Playwright intentionally excluded from CI for now (browser-binary download is heavy).
   - **Re-validated `docs/kelp_agency_comparative_analysis.md` and `docs/kelp_clone_remediation_plan.md`:** Of the 15 critical/high/medium discrepancies in the comparative analysis, only 2 were genuinely outstanding (carousel post-navigation breakage → F1; missing portfolio imagery → F6). The other 13 were stale (already fixed in rounds 1–4), invalid (the original `kelp.agency` also doesn't have a client logo bar), or out-of-scope (Resources as blog, anchor-based services). Of the 22 sub-items in the proposed remediation plan, only 4 were genuinely outstanding (F6, F8 testing, F9 CI/CD, plus the deferred F5). The other 18 were invalid, already done, or out-of-scope.
   - **Result:** `npm run check` (0/0/0), `npm run build` (21 pages), `npm run check:links` (0 broken, 1311 checked), `npm run check:content` (0 errors), `npm run test:e2e` (42 passed). E2E verified via `agent-browser` on local preview: mobile menu opens after View Transition (F1 fixed), headroom adds `is-scrolled` class after View Transition (F2 fixed), case study cards have unique SVG covers (F6 fixed).
+- **2026-08-05 (round 6)** — Listener leaks + SVG a11y + contact form UX + CI E2E + docs. Triggered by a round-6 Mode C re-audit (per `astro-7` + `astro-7-patterns` skills compliance) + `agent-browser` E2E on the live `https://astro.jesspete.shop/` deployment (which had all round-5 fixes live, verified via curl). All fixes verified via TDD (red → green → refactor). Fixes:
+  - **Scroll listener leak on `window` (R6-1, Medium):** Round 5's `initHeadroom()` had an idempotency guard on the header element (swapped), but the scroll listener was attached to `window` (persistent). After N View Transitions, N+1 scroll listeners accumulated on `window`, each mutating a different (mostly detached) header. Fix: moved the scroll listener to MODULE LEVEL (mirrors the F3 fix pattern), re-queries `.site-header` inside the handler. `initHeadroom()` is no longer needed — the module-level listener + an initial `onScroll()` call is sufficient.
+  - **Escape keydown listener leak on `document` (R6-3, Low):** Same anti-pattern as R6-1, inside `initMobileMenu()`. The Escape listener was attached to `document` (persistent) inside the init function (called on every swap). Fix: moved to module level, re-queries toggle/menu inside the handler.
+  - **IntersectionObserver leak (R6-4, Low):** `initScrollReveal()` created a new `IntersectionObserver` on every swap without disconnecting the old one. The old observer retained references to detached `[data-reveal]` elements, preventing GC. Fix: stored the observer at module scope, `disconnect()` before re-creating.
+  - **SVG cover a11y (R6-5, Low):** Round 5's `CaseStudyCover.astro` + `ArticleCover.astro` had `role="img"` + `aria-labelledby` + `<title>` + `<desc>`. But the covers are rendered ALONGSIDE visible heading text — the SVGs are decorative. The `role="img"` caused screen readers to announce the title 2-3 times (once from SVG `<title>`, once from visible heading, once from carousel `aria-label`). Fix: removed `role="img"` / `aria-labelledby` / `<title>` / `<desc>`; added `aria-hidden="true"`. Matches the pattern used by every other decorative SVG in the codebase.
+  - **Contact form silent failure (R6-11, High — found via live E2E):** The contact form posts to `/contact/` (itself). Since this is a static site with no backend, the POST caused the static server to re-render the page — the form disappeared with no feedback. Verified via live reproduction on `https://astro.jesspete.shop/contact/`. Fix: added an inline `<script>` that intercepts the submit, `preventDefault()`, hides the form, and shows an `aria-live="polite"` message directing the user to email `info@kelp.agency` directly. The init function is idempotent (via `dataset.contactFormInit` flag) and re-runs on `astro:after-swap`.
+  - **Playwright E2E in CI (R6-2, Medium):** Round 5 added the Playwright suite but excluded it from CI. The F1/F2/F3 regression tests didn't gate production. Fix: added a separate `e2e` job to `.github/workflows/ci.yml` with `actions/cache` for `~/.cache/playwright`, `npx playwright install --with-deps chromium`, and `npm run test:e2e`. Runs in parallel with the `verify` job.
+  - **Test coverage gaps (R6-8, Low):** Added 3 missing tests: dropdown click-toggle (verifies `aria-expanded` flips synchronously on click), carousel ArrowLeft keyboard nav (including wrap-around from slide 1 to slide 9), headroom scroll-up→pinned cycle (verifies the "show on scroll up" behavior).
+  - **Test efficiency (R6-9, Informational):** Scoped `dropdowns.spec.ts` to `desktop-chrome` project only (dropdowns are desktop-only — the mobile menu replaces them on mobile). Removed the redundant `test.use({ viewport })` override. Eliminated ~4 redundant runs.
+  - **Documentation drift (R6-6, R6-7, Low):** Fixed CLAUDE.md (4 stale claims: "17 static pages" → 21; "only verification step" → reference to Testing Strategy; missing dropdown menus + headroom in JS-shipping list; missing headroom in View Transitions pattern list). Fixed README.md line 23 (added dropdown menus + scroll-reveal/headroom + contact-form feedback script to the JS surface list).
+  - **`skills/astro-7-patterns/SKILL.md` updated (§23):** Added a new section "View Transitions Re-Init: The Complete Pattern" documenting the F1/F2/F3 + R6-1/R6-3/R6-4 bug class, the correct module-level listener pattern, the IntersectionObserver `disconnect()` pattern, the SVG-cover `aria-hidden` lesson, the contact-form-stub UX lesson, the CI regression-test lesson, the documentation-drift lesson, 8 new troubleshooting entries, and updated pre-build + post-build checklists. Bumped version 1.4 → 1.6.
+  - **Result:** `npm run check` (0/0/0), `npm run build` (21 pages), `npm run check:links` (0 broken, 1311 checked), `npm run check:content` (0 errors), `npm run test:e2e` (61 passed). E2E verified via `agent-browser` on local preview: contact form shows feedback message on submit (R6-11 fixed), SVG covers no longer have `role="img"` (R6-5 fixed), no scroll-listener leak after 5 navigations (R6-1 fixed).
