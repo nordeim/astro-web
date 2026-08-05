@@ -12,7 +12,7 @@
 
 > A production-ready clone of [kelp.agency](https://www.kelp.agency/) built with **Astro 7** and **Tailwind CSS 4**.
 
-> **Status:** ✅ Remediated — 21 pages built, all internal links resolve (verified via `npm run check:links`), all content frontmatter valid (verified via `npm run check:content`), `npm run check` passes. Verified against the kelp.agency live site on 2026-08-04; see `docs/audit/AUDIT_FINDINGS.md` for the audit and `docs/audit/REMEDIATION_PLAN.md` for the fix log.
+> **Status:** ✅ Remediated (round 5) — 21 pages built, all internal links resolve (verified via `npm run check:links`), all content frontmatter valid (verified via `npm run check:content`), `npm run check` passes, `npm run test:e2e` passes 42 Playwright specs across desktop + mobile viewports. Verified against the kelp.agency live site on 2026-08-05; see `docs/audit/AUDIT_FINDINGS.md` for the audit and `docs/audit/REMEDIATION_PLAN.md` through `docs/audit/REMEDIATION_PLAN_ROUND5.md` for the fix logs.
 >
 > **Live preview:** `npm run preview` after `npm install` → `http://localhost:4321/`.
 
@@ -64,14 +64,15 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 
 | Step | Command | Expected |
 |------|---------|----------|
-| Install | `npm install` | Completes with a tree of 230+ packages, no peer errors |
+| Install | `npm install` | Completes with a tree of 300+ packages, no peer errors |
 | Type-check | `npm run check` | `0 errors` / `0 hints` from `astro check` |
 | Link check | `npm run check:links` | `✓ All internal links resolve.` (after `npm run build`) |
 | Content check | `npm run check:content` | `✓ All content files valid.` |
+| E2E tests | `npm run test:e2e` | `42 passed` — Playwright specs across desktop + mobile viewports |
 | Build | `npm run build` | `dist/` populated; `Complete!` with route list + `sitemap-index.xml` |
 | Dev | `npm run dev` | Server reachable at `http://localhost:4321/`; homepage renders |
 
-> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. The `prebuild` and `precheck` hooks (see `scripts/verify-deps.mjs`) auto-verify config-level dependencies before `build`/`check` run. There is no test runner, linter, or formatter configured.
+> **Note:** `npm run check` (`astro check`) is the TypeScript/Astro verification step. `npm run check:links` and `npm run check:content` are project-specific regression tests (see `scripts/link-check.mjs` and `scripts/validate-content.mjs`) added during the 2026-08-04 remediation. `npm run test:e2e` (Playwright) was added during the 2026-08-05 round-5 remediation to catch View Transitions re-init regressions that the static checks cannot detect. The `prebuild` and `precheck` hooks (see `scripts/verify-deps.mjs`) auto-verify config-level dependencies before `build`/`check` run.
 
 ---
 
@@ -82,7 +83,8 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 ├── 📄 astro.config.mjs              # Astro + Tailwind 4 + Fonts API + Sitemap config
 ├── 📄 content.config.ts             # (src/) Content Layer collections + Zod schemas
 ├── 📄 tsconfig.json                 # Extends astro/tsconfigs/strict
-├── 📄 package.json                  # name: kelp-clone; npm scripts (incl. check:links, check:content)
+├── 📄 package.json                  # name: kelp-clone; npm scripts (incl. check:links, check:content, test:e2e)
+├── 📄 playwright.config.ts          # Playwright E2E config — desktop + mobile projects, preview server
 ├── 📄 AGENTS.md                     # Compact agent instructions (gotchas & commands)
 ├── 📄 CLAUDE.md                     # Full agent operating manual (Meticulous Approach)
 ├── 📄 astro-7-patterns.md            # Long Astro 7 reference used during build (46 KB)
@@ -92,11 +94,17 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 │   ├── 📄 IMPLEMENTATION_PLAN.md    # Phased build plan with checklists
 │   ├── 📄 astro-7-patterns.md       # Copy of the root reference
 │   ├── 📄 astro-7-SKILL.md           # Astro 7 skill reference
-│   └── 📂 audit/                    # 2026-08-04 code audit + remediation plans
+│   └── 📂 audit/                    # 2026-08-04 → 2026-08-05 code audit + remediation plans
 │       ├── 📄 AUDIT_FINDINGS.md      # Round 1: 26 findings (4 Critical, 8 High, 6 Medium, 5 Low, 3 Info)
 │       ├── 📄 REMEDIATION_PLAN.md    # Round 1: phase-by-phase fix plan + TDD strategy
 │       ├── 📄 REMEDIATION_PLAN_ROUND2.md  # Round 2: build-error root cause + dep guard + OG image
-│       └── 📄 REMEDIATION_PLAN_ROUND3.md  # Round 3: skills compliance + design fidelity
+│       ├── 📄 REMEDIATION_PLAN_ROUND3.md  # Round 3: skills compliance + design fidelity
+│       ├── 📄 REMEDIATION_PLAN_ROUND4.md  # Round 4: content fidelity + brand motifs + SEO
+│       └── 📄 REMEDIATION_PLAN_ROUND5.md  # Round 5: View Transitions re-init bugs + content + imagery + CI
+│
+├── 📂 .github/
+│   └── 📂 workflows/
+│       └── 📄 ci.yml                # GitHub Actions: check + build + check:links + check:content on push/PR
 │
 ├── 📂 public/
 │   ├── 📄 favicon.svg                # Kelp "K" wordmark
@@ -110,6 +118,13 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
 │   ├── 📄 verify-deps.mjs            # prebuild/precheck guard — verifies config-level deps are installed
 │   └── 📄 generate-og-image.py       # Renders public/og-default.png via PIL (re-run if design changes)
 │
+├── 📂 tests/                        # Playwright E2E specs (added round 5)
+│   ├── 📄 homepage.spec.ts           # Homepage smoke + JSON-LD parseability
+│   ├── 📄 carousel.spec.ts           # Carousel init + re-init after View Transition
+│   ├── 📄 mobile-menu.spec.ts        # Mobile menu a11y + F1 regression test
+│   ├── 📄 headroom.spec.ts           # Headroom + scroll-reveal + F2 regression test
+│   └── 📄 dropdowns.spec.ts          # Desktop dropdowns + F3 regression test
+│
 └── 📂 src/
     ├── 📂 components/
     │   ├── 📄 Header.astro          # Sticky nav, headroom behavior + mobile menu + dropdown menus
@@ -117,14 +132,16 @@ If you've pulled commits that added or changed dependencies, **re-run `npm insta
     │   ├── 📄 Button.astro          # Square-cornered button (primary / on-dark / secondary)
     │   ├── 📄 Section.astro         # Section wrapper (bg/padding variants)
     │   ├── 📄 PageHeader.astro      # Inner-page hero
+    │   ├── 📄 CaseStudyCover.astro  # Deterministic SVG cover art per case study (round 5)
+    │   ├── 📄 ArticleCover.astro    # Deterministic SVG cover art per article (round 5)
     │   └── 📂 home/                  # Homepage sections (all consume content collections)
     │       ├── 📄 Hero.astro          # Type-as-image hero (H1 is the visual) + wave-divider SVG
     │       ├── 📄 HeroWave.astro       # Inline SVG wave-gradient divider (matches original kelp.agency)
-    │       ├── 📄 RecentWork.astro    # Vanilla-JS carousel — uses caseStudies collection
+    │       ├── 📄 RecentWork.astro    # Vanilla-JS carousel — uses caseStudies collection + CaseStudyCover
     │       ├── 📄 Services.astro       # 5-column service grid — uses services collection
     │       ├── 📄 HowWeWork.astro     # 5-step process
     │       ├── 📄 Testimonials.astro   # Uses testimonials collection (3 entries)
-    │       ├── 📄 FeaturedArticles.astro # Uses articles collection (top 3 by date)
+    │       ├── 📄 FeaturedArticles.astro # Uses articles collection (top 3 by date) + ArticleCover
     │       └── 📄 CTA.astro
     │
     ├── 📂 content/                   # Markdown + YAML content (single source of truth)
@@ -302,9 +319,19 @@ Proprietary. This is a clone built for demonstration purposes. The original kelp
   - **How We Work "Ready to get started?" link (R3-4):** Added a CTA link at the end of the 5-step process, matching the original kelp.agency's How We Work section. Links to `/contact/` with a kelp-green underline.
   - **DRY `desiredOrder` (R3-5):** Extracted the service category display order from duplicated inline arrays in `Services.astro` and `services/index.astro` into a shared `src/lib/service-order.ts` module exporting `SERVICE_ORDER`. Both consumers now import from the same source.
   - **Result:** `npm run check` (0/0/0), `npm run build` (21 pages), `npm run check:links` (0 broken), `npm run check:content` (0 errors). E2E verified via `agent-browser` against local preview: footer has 6 columns, HowWeWork has CTA link, mobile menu has dialog ARIA + focus management.
-- **2026-08-04 (round 4)** — Content fidelity + brand motifs + SEO. Triggered by review of `docs/comparative-analysis.md` (external audit) + agent-browser E2E validation against `https://www.kelp.agency/`. Fixes:
   - **Replaced fabricated contact info (R4-1, Critical):** Contact page now shows the real Kelp address (`P.O. Box 116, Brooksville, FL 34605`), real phone (`352-325-7688`), and correct email (`info@kelp.agency` — was `hello@kelp.agency`). Testimonials now use clearly-fictional placeholder names (Jane Doe, John Smith, Alex Sample) instead of fabricated names attached to real client companies. About page team now uses fictional placeholders (Jane Doe, John Smith, Alex Sample, Sam Wilson) with an explicit note that they are not real Kelp staff, plus links to the original About page for the real team.
   - **Added brand-motif SVGs (R4-2, Medium):** Created `src/components/home/HeroWave.astro` — an inline SVG wave-divider with aqua-to-teal gradient (`#bef3f4 → #80e6e9`) matching the original's `class="hero-water"`. Added a custom leaf-shaped quotation-mark SVG (90.8×67.3 viewBox, `--color-seafoam` fill) to each testimonial figure. Both verified via `agent-browser eval` — SVGs are in the DOM with the correct gradients and colors.
   - **Aligned title-tag convention (R4-3, Low):** Homepage `<title>` is now `"Kelp Creative Agency"` (was `"Kelp Creative Agency — Central Florida's Award-Winning Creative Agency"`). Inner pages follow the original's convention: `"About Kelp"`, `"Contact Kelp"`, `"Kelp's Services"`, `"Our Work"`, `"Kelp Client List"`, `"Kelp's Preferred Platforms"`, `"Kelp Resources"`. Case-study and article detail pages keep `"{Title} — Kelp Creative Agency"` (matches original).
   - **Added JSON-LD structured data (R4-4, Medium):** `BaseLayout.astro` now emits a `<script type="application/ld+json">` block with schema.org `Organization` (name, url, logo, email, phone, address, sameAs social links), `WebSite`, `WebPage`, and `BreadcrumbList` (Home → current page, skipped on homepage). Uses `set:html` with `JSON.stringify()` — safe because content is 100% server-controlled (per astro-7 anti-pattern #14). Verified parseable via Python `json.loads`.
   - **Result:** `npm run check` (0/0/0), `npm run build` (21 pages), `npm run check:links` (0 broken, 1308 checked), `npm run check:content` (0 errors). E2E verified: contact info correct, testimonials fictional, hero wave SVG present, testimonial leaf SVGs present (3, seafoam green), titles match original, JSON-LD valid with 3-4 entries per page.
+- **2026-08-05 (round 5)** — View Transitions re-init bugs + content + imagery + CI. Triggered by a Mode C systematic code audit (per `astro-7` + `astro-7-patterns` skills compliance checklist) + `agent-browser` E2E validation against the live clone (`https://astro.jesspete.shop/`) and the original (`https://www.kelp.agency/`). All fixes verified via TDD (red → green → refactor) using a newly-added Playwright suite. Fixes:
+  - **Mobile menu re-init on `astro:after-swap` (F1, High):** The mobile menu script in `Header.astro` captured `toggle` and `menu` once at script execution and only registered `closeMenu` on swap — after the first View Transition, the new hamburger button had no click listener and the mobile menu became unresponsive. Verified via live reproduction on `https://astro.jesspete.shop/`. Fix: refactored to an idempotent `initMobileMenu()` function that re-queries the toggle/menu on every call (mirroring the existing `initDropdowns` pattern in the same file). Verified via Playwright regression test.
+  - **Headroom re-init on `astro:after-swap` (F2, Medium):** The headroom script in `BaseLayout.astro` captured `.site-header` once at script execution. The `astro:after-swap` handler only re-initialized the IntersectionObserver for `[data-reveal]` — not the headroom. After a View Transition, the scroll listener kept mutating the now-detached OLD header; the NEW header never received `is-scrolled` / `headroom--pinned` / `headroom--unpinned`. Fix: extracted `initHeadroom()` and `initScrollReveal()` functions; both are called on initial load and inside the `astro:after-swap` handler. Idempotency via `dataset.headroomInit` flag.
+  - **Dropdown outside-click listener leak (F3, Medium):** The `initDropdowns()` function attached a `document.addEventListener('click', …)` outside-click listener INSIDE the function. Since `initDropdowns()` is called on initial load AND on every `astro:after-swap`, each View Transition added another identical listener — a memory leak with idempotent effect. Fix: moved the document-level listener OUT of `initDropdowns()` so it's attached only once at module level. The per-trigger `forEach` (correctly idempotent via `dataset.dropdownInit`) stays inside `initDropdowns()`.
+  - **Validator schema gap (F4, Low):** `scripts/validate-content.mjs` services schema omitted the `anchor` field from `required`, even though `src/content.config.ts` requires it. A service markdown file missing `anchor:` would pass `check:content` but fail `astro build` with a less-friendly Zod error. Fix: added `'anchor'` to the `required` array.
+  - **Templated case-study bodies (F5, Informational):** 6 of 9 case-study markdown files shared word-for-word-identical body paragraphs — only the client name in the opening sentence differed. The 3 newer case studies (`marker-48`, `croom-brewery`, `beverlin-hills-quality-goods`) demonstrated the intended quality bar. Fix: replaced all 6 templated bodies (`spring-water-spirits`, `unprofitable`, `elev8-fun`, `mountaineer-coffee`, `deals-in-dirt`, `harts-meat-market`) with unique, client-specific content grounded in the client's publicly-known business.
+  - **Portfolio imagery (F6, High — from comparative analysis):** The clone used CSS gradients for case-study cards while the original `kelp.agency` has real portfolio screenshots. Cannot legally reuse the original's copyrighted images. Fix: created `CaseStudyCover.astro` and `ArticleCover.astro` — deterministic SVG cover components that generate unique branded cover art per case study / article, derived from a hash of the client/title. Each cover is visually distinct, infinitely scalable, and adds zero network requests (SVG inlines directly into HTML). Verified via `agent-browser eval` — all 9 carousel slides + 3 article cards now have unique SVG covers with `<title>` for a11y.
+  - **Testing infrastructure (F8, High):** Added Playwright E2E test suite (`tests/` directory, 5 spec files, 21 specs × 2 projects = 42 tests). Covers homepage smoke, carousel init + re-init, mobile menu a11y + F1 regression, headroom + scroll-reveal + F2 regression, dropdowns + F3 regression. `playwright.config.ts` configures `webServer` to auto-build + preview on `npm run test:e2e`. Added `npm run test:e2e` script. All 42 tests pass.
+  - **CI/CD (F9, Medium):** Added `.github/workflows/ci.yml` that runs on every push to `main` and every PR. Steps: checkout, setup-node 22, npm install, npm run check, npm run build, npm run check:links, npm run check:content. Uploads `dist/` artifact on `main`. Playwright intentionally excluded from CI for now (browser-binary download is heavy).
+  - **Re-validated `docs/kelp_agency_comparative_analysis.md` and `docs/kelp_clone_remediation_plan.md`:** Of the 15 critical/high/medium discrepancies in the comparative analysis, only 2 were genuinely outstanding (carousel post-navigation breakage → F1; missing portfolio imagery → F6). The other 13 were stale (already fixed in rounds 1–4), invalid (the original `kelp.agency` also doesn't have a client logo bar), or out-of-scope (Resources as blog, anchor-based services). Of the 22 sub-items in the proposed remediation plan, only 4 were genuinely outstanding (F6, F8 testing, F9 CI/CD, plus the deferred F5). The other 18 were invalid, already done, or out-of-scope.
+  - **Result:** `npm run check` (0/0/0), `npm run build` (21 pages), `npm run check:links` (0 broken, 1311 checked), `npm run check:content` (0 errors), `npm run test:e2e` (42 passed). E2E verified via `agent-browser` on local preview: mobile menu opens after View Transition (F1 fixed), headroom adds `is-scrolled` class after View Transition (F2 fixed), case study cards have unique SVG covers (F6 fixed).

@@ -62,23 +62,34 @@ npm install          # use npm, not pnpm/yarn — lockfile is package-lock.json,
 | `npm run check` | `astro check` — TypeScript + `.astro` diagnostics. `precheck` hook verifies deps first. |
 | `npm run check:links` | Static internal-link checker. Run AFTER `npm run build`. |
 | `npm run check:content` | Content frontmatter validator. Run any time. |
+| `npm run test:e2e` | Playwright E2E suite (added round 5). Auto-builds + serves `dist/` via `webServer` config. |
 
 Requires **Node.js 22.12.0+** (Astro 7 constraint).
 
 ## Testing Strategy
 
-**No test runner, linter, or formatter is configured.** Verification is:
+**Static checks** (always run before claiming work is done):
 
 - `npm run check` — TypeScript + `.astro` diagnostics (Astro's built-in). The `precheck` hook runs `scripts/verify-deps.mjs` first to catch missing config-level dependencies before `astro check` tries to load them.
 - `npm run check:links` — project-level static link checker. Walks `dist/**/*.html` after a build and verifies every internal `href`/`src` resolves to a file. Catches broken internal links and missing anchor targets.
 - `npm run check:content` — project-level frontmatter validator. Reads `src/content/**/*.{md,yaml}` and asserts schema-critical fields are present, non-empty, and correctly typed. Catches malformed frontmatter before it ships.
 - `prebuild` / `precheck` dep guard (`scripts/verify-deps.mjs`) — runs automatically before `npm run build` and `npm run check`. Verifies `astro`, `@astrojs/sitemap`, `@tailwindcss/vite`, `@astrojs/check`, and `typescript` are installed. If any are missing, exits 1 with a "run `npm install`" message instead of a Vite stack trace.
 
-Run all three checkers before claiming work is done. Do not assume `npm test` exists. The scripts live in `scripts/` at the repo root.
+**E2E tests** (added round 5; run after any change to `Header.astro`, `BaseLayout.astro`, `RecentWork.astro`, or any inline `<script>`):
+
+- `npm run test:e2e` — Playwright E2E suite. 42 specs across desktop-chrome + mobile-chrome projects. Auto-builds + serves `dist/` via the `webServer` config in `playwright.config.ts`. Includes regression tests for:
+  - **F1:** mobile menu opens after a View Transition (`tests/mobile-menu.spec.ts`)
+  - **F2:** headroom adds `is-scrolled` class after a View Transition (`tests/headroom.spec.ts`)
+  - **F3:** dropdown outside-click works after multiple View Transitions (`tests/dropdowns.spec.ts`)
+  - Carousel init + re-init + keyboard a11y (`tests/carousel.spec.ts`)
+  - Homepage smoke + JSON-LD parseability (`tests/homepage.spec.ts`)
+
+Run all three static checks + the E2E suite before claiming work is done. The scripts live in `scripts/` at the repo root and `tests/` at the repo root. There is no unit-test runner (Vitest) or linter/formatter configured — verification is intentionally minimal to keep the build fast.
 
 ## Git & Version Control
 
-- No `.git/`-level conventions configured (no commit hooks, no `.github/`, no `.githooks`). None detected — follow Conventional Commits and atomic commits by default; verify with the user before merging or pushing.
+- GitHub Actions CI workflow at `.github/workflows/ci.yml` runs `check` + `build` + `check:links` + `check:content` on every push to `main` and every PR. Playwright E2E tests are intentionally NOT run in CI yet (browser-binary download is heavy; defer to a future round with `actions/cache`).
+- Follow Conventional Commits and atomic commits by default; verify with the user before merging or pushing.
 
 ## Error Handling & Debugging
 
