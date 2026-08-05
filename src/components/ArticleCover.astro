@@ -18,10 +18,9 @@
 interface Props {
   title: string;
   category: string;
-  slug?: string;
 }
 
-const { title, category, slug } = Astro.props;
+const { title, category } = Astro.props;
 
 // === Deterministic hash → palette + composition ===
 function hash(s: string): number {
@@ -67,19 +66,22 @@ function categoryGlyph(cat: string): string {
 }
 
 const glyph = categoryGlyph(category);
-const titleId = `article-cover-${slug || title.toLowerCase().replace(/\s+/g, '-').slice(0, 30)}`;
+// Note: titleId was removed in round 6 (R6-5) when the SVG became
+// aria-hidden="true". The `title` prop is still used for the hash + letter.
 ---
 
 <svg
   viewBox="0 0 351 250"
   xmlns="http://www.w3.org/2000/svg"
-  role="img"
-  aria-labelledby={titleId}
+  aria-hidden="true"
   preserveAspectRatio="xMidYMid slice"
   style="display:block; width:100%; height:100%;"
 >
-  <title id={titleId}>{title} — article cover art</title>
-  <desc>Abstract branded cover for the article "{title}".</desc>
+  {/* Decorative SVG — the visible title/category text alongside this cover
+      (in FeaturedArticles.astro, resources/[slug].astro) already labels the
+      article for screen readers. Adding role="img" + <title> here caused AT
+      to announce the title twice. Per WCAG 2.2 SC 1.1.1, decorative images
+      alongside visible text should be aria-hidden="true". Round 6 R6-5 fix. */}
 
   <rect width="351" height="250" fill={colors.bg} />
 

@@ -27,7 +27,7 @@ const sortedCaseStudies = caseStudies.sort(
         <article data-reveal style={i % 2 === 1 ? 'margin-top: 0;' : ''}>
           <a href={`/work/${cs.id}/`} class="block no-underline group">
             <div class="aspect-[4/3] w-full mb-6 transition-opacity group-hover:opacity-90 overflow-hidden">
-              <CaseStudyCover client={cs.data.client} title={cs.data.title} category={cs.data.category} slug={cs.id} />
+              <CaseStudyCover client={cs.data.client} category={cs.data.category} slug={cs.id} />
             </div>
             <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.75rem; letter-spacing: 0.1em;">
               {cs.data.category}

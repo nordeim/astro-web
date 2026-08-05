@@ -22,7 +22,7 @@ const articles = (await getCollection('articles'))
           class="block aspect-[351/250] bg-mist overflow-hidden mb-4"
           aria-label={`Read: ${article.data.title}`}
         >
-          <ArticleCover title={article.data.title} category={article.data.category} slug={article.id} />
+          <ArticleCover title={article.data.title} category={article.data.category} />
         </a>
         <p class="font-[var(--font-poppins)] font-semibold uppercase tracking-wider text-kelp" style="font-size: 0.75rem; letter-spacing: 0.1em;">
           {article.data.category}

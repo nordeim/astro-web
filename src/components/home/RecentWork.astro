@@ -50,7 +50,7 @@ const caseStudies = (await getCollection('caseStudies')).sort(
               </a>
             </div>
             <div class="aspect-[4/3] bg-mist" aria-hidden="false">
-              <CaseStudyCover client={cs.data.client} title={cs.data.title} category={cs.data.category} slug={cs.id} />
+              <CaseStudyCover client={cs.data.client} category={cs.data.category} slug={cs.id} />
             </div>
           </div>
         </article>

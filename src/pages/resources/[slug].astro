@@ -34,7 +34,7 @@ const { Content } = await render(article);
       By {article.data.author} · {new Date(article.data.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
     </p>
     <div class="mt-10 max-w-2xl" data-reveal>
-      <ArticleCover title={article.data.title} category={article.data.category} slug={article.id} />
+      <ArticleCover title={article.data.title} category={article.data.category} />
     </div>
   </Section>
 
