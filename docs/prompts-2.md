@@ -1,3 +1,25 @@
+Based on your comparative analysis, please meticulously plan to create a remediation plan on how to improve the codebase for the clone website `https://astro.jesspete.shop/` using the attached skills as guidance.
+
+The GitHub repo for the clone codebase is at URL `https://github.com/nordeim/astro-web.git`
+
+---
+
+please meticulously plan to review and update `skills/astro-7-patterns/SKILL.md` with all the lessons and experiences gained, issues/bugs encountered and their resolutions, troubleshooting tips, coding patterns and anti-patterns learnt in these remediation rounds.
+
+---
+
+please meticulously plan to validate the code changes in the git commits mentioned in @docs/session_1.md against the codebase to confirm alignment
+
+---
+
+please meticulously plan to update @README.md using skill `skills/readme-md/SKILL.md`
+
+---
+
+please use `skills/claude-md/SKILL.md` as the guide to create `CLAUDE.md` for the codebase
+
+---
+
 please meticulously plan to review and update `skills/astro-7-patterns/SKILL.md` with all the lessons and experiences gained, issues/bugs encountered and their resolutions, troubleshooting tips, coding patterns and anti-patterns learnt in these remediation rounds.
 
 ---
