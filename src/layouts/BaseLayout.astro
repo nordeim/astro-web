@@ -135,8 +135,12 @@ const jsonLdString = JSON.stringify(jsonLdGraph);
     {/* Scroll reveal + header headroom script */}
     <script>
       // === Scroll reveal via IntersectionObserver ===
-      const revealEls = document.querySelectorAll('[data-reveal]');
-      if (revealEls.length > 0) {
+      // Wrapped in a function so it can be re-run on `astro:after-swap`.
+      // Per astro-7-patterns §3, every DOM-querying script must re-init on
+      // swap or it stops working after the first navigation.
+      const initScrollReveal = () => {
+        const revealEls = document.querySelectorAll('[data-reveal]');
+        if (revealEls.length === 0) return;
         const observer = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
@@ -149,11 +153,23 @@ const jsonLdString = JSON.stringify(jsonLdGraph);
           { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
         );
         revealEls.forEach((el) => observer.observe(el));
-      }
+      };
 
       // === Headroom behavior for sticky header ===
-      const header = document.querySelector('.site-header');
-      if (header) {
+      // Idempotent init: re-queries `.site-header` on every call so that
+      // the NEW header element (replaced by View Transitions) gets a fresh
+      // scroll listener. The previous version captured `header` once at
+      // script execution and never re-queried — after the first navigation,
+      // the scroll listener kept mutating the now-detached OLD header, so
+      // the NEW header never received `is-scrolled` / `headroom--pinned` /
+      // `headroom--unpinned` classes (F2, round 5).
+      const initHeadroom = () => {
+        const header = document.querySelector<HTMLElement>('.site-header');
+        if (!header) return;
+        // Idempotency guard — don't double-attach the scroll listener
+        if (header.dataset.headroomInit === 'true') return;
+        header.dataset.headroomInit = 'true';
+
         let lastScroll = 0;
         const threshold = 100; // px from top before headroom kicks in
 
@@ -189,25 +205,19 @@ const jsonLdString = JSON.stringify(jsonLdGraph);
 
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
-      }
+      };
+
+      initScrollReveal();
+      initHeadroom();
 
       // === Re-run on Astro page transitions ===
+      // Both scroll-reveal and headroom must re-init, because View Transitions
+      // replace the entire <body> (including the header element and any
+      // [data-reveal] elements). Without re-init, the new elements have no
+      // listeners.
       document.addEventListener('astro:after-swap', () => {
-        const newRevealEls = document.querySelectorAll('[data-reveal]');
-        if (newRevealEls.length > 0) {
-          const obs = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('is-visible');
-                  obs.unobserve(entry.target);
-                }
-              });
-            },
-            { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
-          );
-          newRevealEls.forEach((el) => obs.observe(el));
-        }
+        initScrollReveal();
+        initHeadroom();
       });
     </script>
   </body>
