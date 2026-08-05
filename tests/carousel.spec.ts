@@ -45,6 +45,38 @@ test('carousel advances on ArrowRight keypress (keyboard a11y)', async ({ page }
   await expect(counter).toHaveText('2 / 9');
 });
 
+test('carousel advances on ArrowLeft keypress (keyboard a11y, R6-8)', async ({ page }) => {
+  await page.goto('/');
+
+  const counter = page.locator('[data-carousel-counter]');
+  await expect(counter).toHaveText('1 / 9');
+
+  // Focus the carousel region (it has tabindex="0" + role="region")
+  await page.locator('[role="region"]').first().focus();
+
+  // ArrowRight first to advance to slide 2
+  await page.keyboard.press('ArrowRight');
+  await expect(counter).toHaveText('2 / 9');
+
+  // ArrowLeft to go back to slide 1
+  await page.keyboard.press('ArrowLeft');
+  await expect(counter).toHaveText('1 / 9');
+});
+
+test('carousel ArrowLeft from slide 1 wraps to slide 9 (wrap-around, R6-8)', async ({ page }) => {
+  await page.goto('/');
+
+  const counter = page.locator('[data-carousel-counter]');
+  await expect(counter).toHaveText('1 / 9');
+
+  // Focus the carousel region
+  await page.locator('[role="region"]').first().focus();
+
+  // ArrowLeft from slide 1 — should wrap to slide 9
+  await page.keyboard.press('ArrowLeft');
+  await expect(counter).toHaveText('9 / 9');
+});
+
 test('carousel STILL advances after a View Transition (regression for re-init pattern)', async ({
   page,
 }) => {

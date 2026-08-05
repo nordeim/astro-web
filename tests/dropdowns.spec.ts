@@ -22,8 +22,12 @@ import { test, expect } from '@playwright/test';
  * docs/audit/REMEDIATION_PLAN_ROUND5.md F3).
  */
 
-// Use the desktop-chrome project for these tests (dropdowns are desktop-only)
-test.use({ viewport: { width: 1280, height: 800 } });
+// Dropdowns are desktop-only (the mobile menu replaces them on mobile viewports).
+// The mobile-chrome project in playwright.config.ts excludes this file via
+// testIgnore. The desktop-chrome project provides a 1280x720 viewport by
+// default (devices['Desktop Chrome']), which is sufficient for these tests.
+// (R6-9: removed the redundant test.use({ viewport }) override that was
+// pinning to 1280x800 on both projects, causing 4 redundant runs.)
 
 test('dropdown toggles aria-expanded on click (initial-load baseline)', async ({ page }) => {
   await page.goto('/');
@@ -42,6 +46,32 @@ test('dropdown toggles aria-expanded on click (initial-load baseline)', async ({
   await servicesTrigger.hover();
   const submenu = page.locator('.has-submenu .header-submenu').first();
   await expect(submenu).toBeVisible();
+});
+
+test('dropdown click handler toggles aria-expanded before navigation (R6-8)', async ({ page }) => {
+  // This test verifies the actual click-toggle behavior that the prior test
+  // (above) only documented. The trigger has a real href (e.g. /services/),
+  // so clicking it navigates — BUT the click handler runs first and flips
+  // aria-expanded to 'true' before the navigation completes. We capture the
+  // state mid-click via evaluate.
+  await page.goto('/');
+
+  // Use evaluate to click and capture the aria-expanded value synchronously
+  // (before the navigation completes).
+  const result = await page.evaluate(() => {
+    const trigger = document.querySelector<HTMLAnchorElement>(
+      '.has-submenu a[aria-expanded]'
+    );
+    if (!trigger) return { error: 'no trigger' };
+    const before = trigger.getAttribute('aria-expanded');
+    // Click — the handler runs synchronously and flips aria-expanded.
+    trigger.click();
+    const afterClick = trigger.getAttribute('aria-expanded');
+    return { before, afterClick };
+  });
+
+  expect(result.before).toBe('false');
+  expect(result.afterClick).toBe('true');
 });
 
 test('dropdown closes on Escape (initial-load baseline)', async ({ page }) => {

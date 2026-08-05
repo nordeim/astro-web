@@ -44,6 +44,29 @@ test('headroom adds headroom--unpinned class when scrolling down past threshold'
   await expect(header).toHaveClass(/headroom--unpinned/);
 });
 
+test('headroom restores headroom--pinned when scrolling back up (R6-8)', async ({ page }) => {
+  await page.goto('/');
+
+  const header = page.locator('.site-header');
+  // Initial state — pinned (at top)
+  await expect(header).toHaveClass(/headroom--pinned/);
+
+  // Scroll DOWN past threshold — should become unpinned
+  await page.evaluate(() => window.scrollTo(0, 500));
+  await expect(header).toHaveClass(/headroom--unpinned/);
+  await expect(header).not.toHaveClass(/headroom--pinned/);
+
+  // Scroll UP (still past threshold) — should become pinned again
+  await page.evaluate(() => window.scrollTo(0, 200));
+  await expect(header).toHaveClass(/headroom--pinned/);
+  await expect(header).not.toHaveClass(/headroom--unpinned/);
+
+  // Scroll back to top — should stay pinned, is-scrolled removed
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(header).toHaveClass(/headroom--pinned/);
+  await expect(header).not.toHaveClass(/is-scrolled/);
+});
+
 test('headroom STILL adds is-scrolled class after a View Transition (regression for F2)', async ({
   page,
 }) => {
