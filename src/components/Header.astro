@@ -143,10 +143,21 @@ const currentPath = Astro.url.pathname;
 
 <script>
   // === Mobile menu toggle ===
-  const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
-  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+  // Idempotent init: re-queries the toggle and menu on every call so that
+  // the NEW elements (replaced by View Transitions) get fresh listeners.
+  // Per astro-7-patterns §3, every inline script that queries the DOM must
+  // re-run on `astro:after-swap`. The previous version captured `toggle` and
+  // `menu` once at script execution and only registered `closeMenu` on swap —
+  // after the first navigation, the new hamburger button had no click
+  // listener and the mobile menu became unresponsive (F1, round 5).
+  const initMobileMenu = () => {
+    const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
+    const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+    if (!toggle || !menu) return;
+    // Idempotency guard — don't double-attach listeners to the same toggle
+    if (toggle.dataset.mobileMenuInit === 'true') return;
+    toggle.dataset.mobileMenuInit = 'true';
 
-  if (toggle && menu) {
     const closeMenu = () => {
       menu.classList.add('hidden');
       toggle.setAttribute('aria-expanded', 'false');
@@ -183,14 +194,30 @@ const currentPath = Astro.url.pathname;
       }
     });
 
-    // Close on link click
+    // Close on link click inside the menu
     menu.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', closeMenu);
     });
+  };
 
-    // Close on Astro page transition
-    document.addEventListener('astro:after-swap', closeMenu);
-  }
+  // Close-on-swap is registered ONCE at module level — it's idempotent
+  // (closing an already-closed menu is a no-op) and doesn't depend on
+  // captured closures (it re-queries the toggle inside the handler).
+  // This must NOT be inside initMobileMenu() or it would be re-attached
+  // on every swap (same anti-pattern as F3 was for the dropdown outside-click).
+  document.addEventListener('astro:after-swap', () => {
+    const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-menu-toggle]');
+    const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+    if (toggle && menu) {
+      menu.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
+      document.body.style.overflow = '';
+    }
+  });
+
+  initMobileMenu();
+  document.addEventListener('astro:after-swap', initMobileMenu);
 
   // === Desktop dropdown menus ===
   // Open on click (toggle), close on Escape, close on outside click,
@@ -230,20 +257,25 @@ const currentPath = Astro.url.pathname;
         }
       });
     });
-
-    // Close any open submenu on outside click
-    document.addEventListener('click', (e) => {
-      const target = e.target as Node;
-      document
-        .querySelectorAll<HTMLElement>('.has-submenu')
-        .forEach((item) => {
-          if (!item.contains(target)) {
-            const t = item.querySelector<HTMLAnchorElement>('a[aria-expanded]');
-            if (t) t.setAttribute('aria-expanded', 'false');
-          }
-        });
-    });
   };
+
+  // Outside-click listener is registered ONCE at module level (NOT inside
+  // initDropdowns). Previously it was inside initDropdowns, which meant
+  // every astro:after-swap added another identical listener to `document`
+  // — a memory leak with idempotent effect (F3, round 5). The listener
+  // body re-queries the DOM, so it works correctly against whatever
+  // `.has-submenu` elements are currently in the document.
+  document.addEventListener('click', (e) => {
+    const target = e.target as Node;
+    document
+      .querySelectorAll<HTMLElement>('.has-submenu')
+      .forEach((item) => {
+        if (!item.contains(target)) {
+          const t = item.querySelector<HTMLAnchorElement>('a[aria-expanded]');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        }
+      });
+  });
 
   initDropdowns();
   document.addEventListener('astro:after-swap', initDropdowns);
